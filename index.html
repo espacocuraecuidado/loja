@@ -7,16 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
-    --primaria: #a68a78;
-    --secundaria: #ece5df; 
-    --destaque: #8ca68e; 
-    --texto: #5a5552; 
-    --fundo: #f9f7f2; 
-    --sucesso: #25D366; 
-    --cripto-btc: #f7931a; 
-    --cripto-usdt: #26a17b; 
-            }
-      ody { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); }
+            --primaria: #a68a78;
+            --secundaria: #ece5df; 
+            --destaque: #8ca68e; 
+            --texto: #5a5552; 
+            --fundo: #f9f7f2; 
+            --sucesso: #25D366; 
+            --cripto-btc: #f7931a; 
+            --cripto-usdt: #26a17b; 
+        }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); }
         header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--secundaria); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
@@ -24,7 +24,7 @@
         .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
         .carrossel { width: 100%; height: 250px; background: #eee; }
         .carrossel img { width: 100%; height: 100%; object-fit: cover; }  
-        /* DESIGN DE PREÇO MULTI-CRIPTO */
+        
         .produto-info { padding: 20px; text-align: center; }
         .preco-brl { font-size: 1.4em; font-weight: bold; color: var(--primaria); }
         .precos-cripto { margin-top: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -32,21 +32,34 @@
         .selo-btc { color: var(--cripto-btc); background: rgba(247, 147, 26, 0.1); }
         .selo-usdt { color: var(--cripto-usdt); background: rgba(38, 161, 123, 0.1); }
 
-        #modal-checkout { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .checkout-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
-        .chave-box { background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; font-family: monospace; font-size: 0.8em; word-break: break-all; border: 1px solid var(--secundaria); cursor: pointer; transition: 0.2s; }
+        #modal-checkout, .modal-politica { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .checkout-box, .politica-box { background: white; width: 90%; max-width: 500px; padding: 30px; border-radius: 25px; text-align: center; max-height: 80vh; overflow-y: auto; }
+        .chave-box { background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; font-family: monospace; font-size: 0.8em; word-break: break-all; border: 1px solid var(--secundaria); cursor: pointer; }
         
-        .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.2s; }
         .btn-pix { background: var(--sucesso); color: white; }
         .btn-btc { background: var(--cripto-btc); color: white; }
         .btn-usdt { background: var(--cripto-usdt); color: white; }
         .secao { display: none; } .ativa { display: block; }
         #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 4000; font-size: 0.9em; }
+        
+        footer { margin-top: 50px; padding: 30px; text-align: center; font-size: 0.8em; opacity: 0.7; border-top: 1px solid var(--secundaria); }
+        .link-footer { cursor: pointer; text-decoration: underline; margin: 0 10px; }
     </style>
 </head>
 <body>
+
 <div id="notificacao"></div>
+
 <div id="modal-checkout"><div class="checkout-box" id="checkout-conteudo"></div></div>
+
+<div id="modal-politica" class="modal-politica">
+    <div class="politica-box">
+        <h3 id="politica-titulo"></h3>
+        <div id="politica-texto" style="text-align: left; line-height: 1.6; font-size: 0.9em;"></div>
+        <button class="btn" onclick="fecharPolitica()">FECHAR</button>
+    </div>
+</div>
 
 <header>
     <div class="logo" onclick="mostrar('loja')">Espaço Cura & Cuidado</div>
@@ -59,6 +72,7 @@
 
 <div class="container">
     <div id="loja" class="secao ativa"><div class="vitrine" id="vitrine"></div></div>
+    
     <div id="carrinho" class="secao">
         <div style="max-width: 450px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 25px; border: 1px solid var(--secundaria);">
             <h3 style="margin-top:0">Finalizar Reserva</h3>
@@ -69,9 +83,10 @@
             <button class="btn btn-usdt" onclick="abrirCheckout('USDT')">PAGAR COM USDT</button>
         </div>
     </div>
-   <div id="admin" class="secao">
+
+    <div id="admin" class="secao">
         <div style="max-width: 500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 20px; border: 1px solid var(--primaria);">
-            <h3>Painel Admin</h3>
+            <h3>Painel de Controle</h3>
             <input type="text" id="cfg-pix" placeholder="Chave PIX" style="width:94%; padding:10px; margin-bottom:10px;">
             <input type="text" id="cfg-btc" placeholder="Carteira Bitcoin" style="width:94%; padding:10px; margin-bottom:10px;">
             <input type="text" id="cfg-usdt" placeholder="Carteira USDT" style="width:94%; padding:10px; margin-bottom:10px;">
@@ -79,20 +94,25 @@
             
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--secundaria);">
             
-            <h4>Novo Produto/Serviço</h4>
+            <h4 id="form-titulo">Novo Produto</h4>
+            <input type="hidden" id="adm-id">
             <input type="text" id="adm-nome" placeholder="Nome do Serviço" style="width:94%; padding:10px; margin-bottom:10px;">
             <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="text" id="adm-foto" placeholder="Link da Foto (URL)" style="width:94%; padding:10px; margin-bottom:10px;">
-            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR À VITRINE</button>
+            <input type="text" id="adm-foto" placeholder="Link da Foto" style="width:94%; padding:10px; margin-bottom:10px;">
+            <button class="btn btn-pix" id="btn-salvar-prod" onclick="salvarProduto()">ADICIONAR À VITRINE</button>
 
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--secundaria);">
-            
-            <h4>Produtos Cadastrados</h4>
-            <div id="lista-admin" style="text-align: left; font-size: 0.9em;">
-                </div>
+            <h4>Itens Ativos</h4>
+            <div id="lista-admin"></div>
         </div>
     </div>
 </div>
+
+<footer>
+    <p>&copy; 2026 Espaço Cura & Cuidado</p>
+    <span class="link-footer" onclick="abrirPolitica('seguranca')">Segurança</span> | 
+    <span class="link-footer" onclick="abrirPolitica('devolucao')">Trocas e Devoluções</span>
+</footer>
 
 <script>
     const BTC_PADRAO = "bc1q75yqaqav9l4vx8anplha6pqg7vu0n6rrrfgs0q";
@@ -118,24 +138,62 @@
         db.config.btc = document.getElementById('cfg-btc').value || BTC_PADRAO;
         db.config.usdt = document.getElementById('cfg-usdt').value || USDT_PADRAO;
         localStorage.setItem('cura_v2_db', JSON.stringify(db));
-        notify("✅ Carteiras Atualizadas!");
+        notify("✅ Configurações Salvas!");
     }
 
     function salvarProduto() {
+        const id = document.getElementById('adm-id').value;
         const nome = document.getElementById('adm-nome').value;
         const preco = parseFloat(document.getElementById('adm-preco').value);
         const foto = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
+        
         if(!nome || !preco) return;
-        db.produtos.push({ id: Date.now(), nome, preco, foto });
+
+        if(id) { // Editando
+            const index = db.produtos.findIndex(p => p.id == id);
+            db.produtos[index] = { id: Number(id), nome, preco, foto };
+        } else { // Novo
+            db.produtos.push({ id: Date.now(), nome, preco, foto });
+        }
+
         localStorage.setItem('cura_v2_db', JSON.stringify(db));
+        limparFormAdmin();
         renderizar();
+        notify("Sucesso!");
+    }
+
+    function prepararEdicao(id) {
+        const p = db.produtos.find(p => p.id === id);
+        document.getElementById('adm-id').value = p.id;
+        document.getElementById('adm-nome').value = p.nome;
+        document.getElementById('adm-preco').value = p.preco;
+        document.getElementById('adm-foto').value = p.foto;
+        document.getElementById('form-titulo').innerText = "Alterar Item";
+        document.getElementById('btn-salvar-prod').innerText = "SALVAR ALTERAÇÕES";
+        window.scrollTo(0,0);
+    }
+
+    function removerProduto(id) {
+        if(confirm("Excluir este item permanentemente?")) {
+            db.produtos = db.produtos.filter(p => p.id !== id);
+            localStorage.setItem('cura_v2_db', JSON.stringify(db));
+            renderizar();
+        }
+    }
+
+    function limparFormAdmin() {
+        document.getElementById('adm-id').value = "";
+        document.getElementById('adm-nome').value = "";
+        document.getElementById('adm-preco').value = "";
+        document.getElementById('adm-foto').value = "";
+        document.getElementById('form-titulo').innerText = "Novo Produto";
+        document.getElementById('btn-salvar-prod').innerText = "ADICIONAR À VITRINE";
     }
 
     function renderizar() {
         const vitrine = document.getElementById('vitrine');
-        const listaAdmin = document.getElementById('lista-admin'); // Nova linha
+        const listaAdmin = document.getElementById('lista-admin');
         
-        // Renderiza na Vitrine da Loja
         vitrine.innerHTML = db.produtos.map(p => {
             const vBTC = prices.btc > 0 ? (p.preco / prices.btc).toFixed(8) : "...";
             const vUSDT = prices.usdt > 0 ? (p.preco / prices.usdt).toFixed(2) : "...";
@@ -153,30 +211,19 @@
             </div>`;
         }).join('');
 
-        // Renderiza a lista de exclusão no Admin
         listaAdmin.innerHTML = db.produtos.map(p => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
-                <span>${p.nome} - R$ ${p.preco.toFixed(2)}</span>
-                <button onclick="removerProduto(${p.id})" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold;">[EXCLUIR]</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; font-size:0.85em;">
+                <span>${p.nome}</span>
+                <div>
+                    <button onclick="prepararEdicao(${p.id})" style="color:blue; border:none; background:none; cursor:pointer; margin-right:10px;">[ALTERAR]</button>
+                    <button onclick="removerProduto(${p.id})" style="color:red; border:none; background:none; cursor:pointer;">[EXCLUIR]</button>
+                </div>
             </div>
-        `).join('') || '<p style="color:#999">Nenhum produto cadastrado.</p>';
+        `).join('') || '<p style="color:#999">Vazio.</p>';
 
         document.getElementById('count').innerText = cart.length;
-        document.getElementById('cfg-pix').value = db.config.pix;
-        document.getElementById('cfg-btc').value = db.config.btc;
-        document.getElementById('cfg-usdt').value = db.config.usdt;
-        
-        let total = cart.reduce((acc, i) => acc + i.preco, 0);
+        document.getElementById('total-carrinho').innerText = `R$ ${cart.reduce((acc, i) => acc + i.preco, 0).toFixed(2)}`;
         document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
-        document.getElementById('total-carrinho').innerText = `R$ ${total.toFixed(2)}`;
-    }
-
-    // Adicione também esta função nova para poder excluir:
-    function removerProduto(id) {
-        db.produtos = db.produtos.filter(p => p.id !== id);
-        localStorage.setItem('cura_v2_db', JSON.stringify(db));
-        renderizar();
-        notify("Produto Removido!");
     }
 
     function abrirCheckout(tipo) {
@@ -191,70 +238,80 @@
         else if(tipo === 'BTC') { valorFinal = `₿ ${(totalBRL/prices.btc).toFixed(8)} BTC`; chave = db.config.btc; cor = 'var(--cripto-btc)'; }
         else { valorFinal = `₮ ${(totalBRL/prices.usdt).toFixed(2)} USDT`; chave = db.config.usdt; cor = 'var(--cripto-usdt)'; }
 
-       
         conteudo.innerHTML = `
             <h3 style="margin-top:0">Pagamento ${tipo}</h3>
             <p style="font-size:1.3em; font-weight:bold; color:${cor}">${valorFinal}</p>
             <div class="chave-box" onclick="copiar('${chave}', this)">${chave || 'Não cadastrada'}</div>
-            <p style="font-size:0.7em; opacity:0.6;">Toque para copiar o endereço</p>
-
+            <p style="font-size:0.75em; color:#666; margin-bottom:15px;">Clique no código acima para copiar</p>
             ${tipo === 'USDT' ? `
                 <div style="margin: 15px 0; padding: 10px; border-radius: 10px; background: #f0fdf4; border: 1px dashed var(--cripto-usdt);">
-                    <p style="font-size:0.7em; color: #166534; margin: 0 0 8px 0;"><strong>Transparência:</strong> Acompanhe sua transação na rede.</p>
-                    <a href="https://polygonscan.com/address/${db.config.usdt}" target="_blank" style="font-size:0.75em; color:var(--cripto-usdt); text-decoration:none; font-weight:bold;">🌐 VERIFICAR NA BLOCKCHAIN →</a>
+                    <p style="font-size:0.7em; color: #166534; margin: 0 0 8px 0;"><strong>Segurança:</strong> Verifique a transação na Blockchain.</p>
+                    <a href="https://polygonscan.com/address/${db.config.usdt}" target="_blank" style="font-size:0.75em; color:var(--cripto-usdt); text-decoration:none; font-weight:bold;">🌐 VERIFICAR REDE POLYGON →</a>
                 </div>
             ` : ''}
-
-
             <button class="btn" style="background:${cor}; color:white" onclick="enviarWhats('${tipo}')">ENVIAR COMPROVANTE</button>
             <button class="btn" style="background:none; color:#999" onclick="fecharCheckout()">CANCELAR</button>
         `;
-
     }
 
-    function copiar(t, el) { 
-        navigator.clipboard.writeText(t); 
-        const old = el.innerText; el.innerText = "✅ COPIADO!";
-        setTimeout(() => el.innerText = old, 2000);
-        notify("Copiado!");
+    function abrirPolitica(tipo) {
+        const modal = document.getElementById('modal-politica');
+        const titulo = document.getElementById('politica-titulo');
+        const texto = document.getElementById('politica-texto');
+        
+        if(tipo === 'seguranca') {
+            titulo.innerText = "Política de Segurança";
+            texto.innerHTML = `<ul>
+                <li><strong>Criptografia P2P:</strong> O pagamento é direto para sua carteira, sem intermediários.</li>
+                <li><strong>Custódia:</strong> Nunca solicitamos sua frase semente (12 palavras).</li>
+                <li><strong>Privacidade:</strong> Seus dados de contato são usados apenas para a prestação do serviço.</li>
+                <li><strong>Blockchain:</strong> Todas as transações cripto são imutáveis e verificáveis publicamente.</li>
+            </ul>`;
+        } else {
+            titulo.innerText = "Trocas e Devoluções";
+            texto.innerHTML = `<p>Seguimos os padrões Amazon e Mercado Livre para sua total confiança:</p>
+            <ol>
+                <li><strong>Arrependimento:</strong> Você tem 7 dias após o recebimento para solicitar a devolução.</li>
+                <li><strong>Correios:</strong> Fornecemos um código de postagem reversa. Você não paga o frete de volta em caso de defeito.</li>
+                <li><strong>Embalagem:</strong> O item deve ser enviado na embalagem original para evitar danos.</li>
+                <li><strong>Reembolso:</strong> 
+                    <br>- PIX: Em até 24h após conferência.
+                    <br>- Cripto: Valor estornado na moeda original (BTC/USDT) conforme cotação do dia da compra.</li>
+            </ol>`;
+        }
+        modal.style.display = 'flex';
     }
 
-    function enviarWhats(m) { window.open(`https://wa.me/${SEU_TEL}?text=Pagamento ${m} realizado!`, '_blank'); }
-    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado!"); }
+    function fecharPolitica() { document.getElementById('modal-politica').style.display = 'none'; }
+    function copiar(t, el) { navigator.clipboard.writeText(t); const old = el.innerText; el.innerText = "✅ COPIADO!"; setTimeout(() => el.innerText = old, 2000); }
+    function enviarWhats(m) { window.open(`https://wa.me/${SEU_TEL}?text=Olá! Realizei o pagamento via ${m}. Segue o comprovante.`, '_blank'); }
+    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado à Bolsa!"); }
     function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
     function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
+    
     function acessoAdmin() {
-        // Criamos um fundo escuro para o login
         const loginOverlay = document.createElement('div');
         loginOverlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:5000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";        
         loginOverlay.innerHTML = `
-            <div style="background:white; padding:30px; border-radius:20px; text-align:center; width:280px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            <div style="background:white; padding:30px; border-radius:20px; text-align:center; width:280px;">
                 <h4 style="margin-top:0; font-family:'Playfair Display'; color:var(--primaria);">Acesso Restrito</h4>
                 <input type="password" id="pass-input" placeholder="Sua Senha" style="width:90%; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px; text-align:center; font-size:1.2em;">
                 <button id="btn-entrar" class="btn btn-btc" style="margin:0;">ENTRAR</button>
-                <button id="btn-cancel" style="background:none; border:none; color:#999; margin-top:15px; cursor:pointer; font-size:0.8em;">CANCELAR</button>
+                <button id="btn-cancel" style="background:none; border:none; color:#999; margin-top:15px; cursor:pointer;">CANCELAR</button>
             </div>
         `;
-
         document.body.appendChild(loginOverlay);
         document.getElementById('pass-input').focus();
-
-        // Lógica de verificação
         const verificar = () => {
-            const senhaDigitada = document.getElementById('pass-input').value;
-            if(senhaDigitada === "Mychell1904") { // Mude aqui para sua senha real!
+            if(document.getElementById('pass-input').value === "Mychell1904") {
                 document.body.removeChild(loginOverlay);
                 mostrar('admin');
-            } else {
-                alert("Senha Incorreta!");
-                document.getElementById('pass-input').value = "";
-            }
+            } else { alert("Senha Incorreta!"); }
         };
-
         document.getElementById('btn-entrar').onclick = verificar;
         document.getElementById('btn-cancel').onclick = () => document.body.removeChild(loginOverlay);
-        document.getElementById('pass-input').onkeypress = (e) => { if(e.key === 'Enter') verificar(); };
     }
+    
     function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
     obterCotacoes();
 </script>

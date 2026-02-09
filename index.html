@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Cura & Cuidado | Multi-Cripto</title>
+    <title>Espaço Cura & Cuidado | Versão 3.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -12,11 +12,13 @@
             --destaque: #8ca68e; 
             --texto: #5a5552; 
             --fundo: #f9f7f2; 
+            --card: #ffffff;
             --sucesso: #25D366; 
             --cripto-btc: #f7931a; 
             --cripto-usdt: #26a17b; 
         }
-        /* MODO ESCURO AUTOMÁTICO */
+
+        /* MODO ESCURO AUTOMÁTICO (V3.0) */
         @media (prefers-color-scheme: dark) {
             :root {
                 --fundo: #1a1817;
@@ -24,20 +26,17 @@
                 --texto: #e2ddd9;
                 --secundaria: #3d3834;
             }
-            header, .checkout-box, .politica-box, .produto-card { background: var(--card) !important; border-color: var(--secundaria); }
+            header, .checkout-box, .politica-box, .produto-card, .depo-card { background: var(--card) !important; border-color: var(--secundaria); }
+            input, textarea { background: #333; color: white; border: 1px solid var(--secundaria); }
         }
 
-        .depoimento-sec { margin-top: 50px; padding: 40px 0; background: var(--secundaria); border-radius: 30px; text-align: center; }
-        .cupom-area { margin: 15px 0; display: flex; gap: 5px; }
-        .cupom-input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); transition: 0.3s; }
         header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--secundaria); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
         .vitrine { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
-        .carrossel { width: 100%; height: 250px; background: #eee; }
-        .carrossel img { width: 100%; height: 100%; object-fit: cover; }  
+        .carrossel img { width: 100%; height: 250px; object-fit: cover; }  
         
         .produto-info { padding: 20px; text-align: center; }
         .preco-brl { font-size: 1.4em; font-weight: bold; color: var(--primaria); }
@@ -47,60 +46,59 @@
         .selo-usdt { color: var(--cripto-usdt); background: rgba(38, 161, 123, 0.1); }
 
         #modal-checkout, .modal-politica { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .checkout-box, .politica-box { background: white; width: 90%; max-width: 500px; padding: 30px; border-radius: 25px; text-align: center; max-height: 80vh; overflow-y: auto; }
-        .chave-box { background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; font-family: monospace; font-size: 0.8em; word-break: break-all; border: 1px solid var(--secundaria); cursor: pointer; }
+        .checkout-box, .politica-box { background: white; width: 90%; max-width: 500px; padding: 30px; border-radius: 25px; text-align: center; max-height: 85vh; overflow-y: auto; }
         
-        .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.2s; }
+        .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-pix { background: var(--sucesso); color: white; }
         .btn-btc { background: var(--cripto-btc); color: white; }
         .btn-usdt { background: var(--cripto-usdt); color: white; }
-        .secao { display: none; } .ativa { display: block; }
-        #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 4000; font-size: 0.9em; }
         
-        footer { margin-top: 50px; padding: 30px; text-align: center; font-size: 0.8em; opacity: 0.7; border-top: 1px solid var(--secundaria); }
-        .link-footer { cursor: pointer; text-decoration: underline; margin: 0 10px; }
+        /* SEÇÃO DEPOIMENTOS */
+        .depoimento-sec { margin-top: 60px; padding: 40px 20px; background: var(--secundaria); border-radius: 30px; text-align: center; }
+        .depo-container { display: flex; overflow-x: auto; gap: 20px; padding: 20px 0; scroll-snap-type: x mandatory; }
+        .depo-card { min-width: 280px; background: white; padding: 25px; border-radius: 20px; scroll-snap-align: start; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+
+        .cupom-box { display: flex; gap: 10px; margin: 20px 0; }
+        .secao { display: none; } .ativa { display: block; }
+        #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 4000; }
+        footer { margin-top: 50px; padding: 30px; text-align: center; font-size: 0.8em; opacity: 0.7; }
     </style>
 </head>
 <body>
 
 <div id="notificacao"></div>
-
 <div id="modal-checkout"><div class="checkout-box" id="checkout-conteudo"></div></div>
-
-<div id="modal-politica" class="modal-politica">
-    <div class="politica-box">
-        <h3 id="politica-titulo"></h3>
-        <div id="politica-texto" style="text-align: left; line-height: 1.6; font-size: 0.9em;"></div>
-        <button class="btn" onclick="fecharPolitica()">FECHAR</button>
-    </div>
-</div>
+<div id="modal-politica" class="modal-politica"><div class="politica-box"><h3 id="p-titulo"></h3><div id="p-texto" style="text-align:left; font-size:0.9em; line-height:1.6;"></div><button class="btn" onclick="fecharPolitica()">FECHAR</button></div></div>
 
 <header>
     <div class="logo" onclick="mostrar('loja')">Espaço Cura & Cuidado</div>
     <nav style="margin-top:10px;">
-    <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">LOJA</span>
-    <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">BOLSA (<span id="count">0</span>)</span>
-</nav>
+        <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">LOJA</span>
+        <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">BOLSA (<span id="count">0</span>)</span>
+    </nav>
 </header>
 
 <div class="container">
-    <div id="loja" class="secao ativa"><div class="vitrine" id="vitrine"></div></div>
-    <div class="depoimento-sec">
-    <h3 style="font-family:'Playfair Display'">O que dizem sobre nós</h3>
-    <div id="lista-depoimentos" style="display:flex; overflow-x:auto; gap:20px; padding:20px;">
+    <div id="loja" class="secao ativa">
+        <div class="vitrine" id="vitrine"></div>
+        <div class="depoimento-sec">
+            <h3 style="font-family:'Playfair Display'; font-size:1.8em;">Vozes do Cuidado</h3>
+            <div class="depo-container" id="lista-depoimentos"></div>
         </div>
-</div>
+    </div>
     
     <div id="carrinho" class="secao">
-        <div style="max-width: 450px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 25px; border: 1px solid var(--secundaria);">
-            <h3 style="margin-top:0">Finalizar Reserva</h3>
+        <div style="max-width: 450px; margin: 0 auto; background: var(--card); padding: 30px; border-radius: 25px; border: 1px solid var(--secundaria);">
+            <h3>Sua Bolsa</h3>
             <div id="lista-carrinho"></div>
+            
+            <div class="cupom-box">
+                <input type="text" id="cupom-input" placeholder="Cupom" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--secundaria);">
+                <button onclick="aplicarCupom()" style="background:var(--primaria); color:white; border:none; border-radius:10px; padding:0 15px; cursor:pointer;">OK</button>
+            </div>
+            <div id="msg-cupom" style="font-size:0.8em; margin-bottom:10px;"></div>
+
             <div id="total-carrinho" style="font-size: 1.6em; color: var(--primaria); text-align: right; font-weight: bold; margin: 20px 0;"></div>
-            <div class="cupom-area">
-    <input type="text" id="cupom-digitado" class="cupom-input" placeholder="Código de Desconto">
-    <button onclick="aplicarCupom()" style="padding:10px; border-radius:8px; background:var(--destaque); color:white; border:none; cursor:pointer;">APLICAR</button>
-</div>
-<div id="msg-cupom" style="font-size:0.8em; margin-bottom:10px;"></div>
             <button class="btn btn-pix" onclick="abrirCheckout('PIX')">PAGAR COM PIX</button>
             <button class="btn btn-btc" onclick="abrirCheckout('BTC')">PAGAR COM BITCOIN</button>
             <button class="btn btn-usdt" onclick="abrirCheckout('USDT')">PAGAR COM USDT</button>
@@ -108,72 +106,60 @@
     </div>
 
     <div id="admin" class="secao">
-        <div style="max-width: 500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 20px; border: 1px solid var(--primaria);">
-            <h3>Painel de Controle</h3>
-            <input type="text" id="cfg-pix" placeholder="Chave PIX" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="text" id="cfg-btc" placeholder="Carteira Bitcoin" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="text" id="cfg-usdt" placeholder="Carteira USDT" style="width:94%; padding:10px; margin-bottom:10px;">
-            <button class="btn btn-btc" onclick="salvarConfig()">SALVAR CARTEIRAS</button>
-            
-            <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--secundaria);">
-            
-            <h4 id="form-titulo">Novo Produto</h4>
+        <div style="max-width: 600px; margin: 0 auto; background: var(--card); padding: 30px; border-radius: 25px; border: 1px solid var(--primaria);">
+            <h3>Painel 3.0</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <input type="text" id="cfg-pix" placeholder="Chave PIX">
+                <input type="text" id="cfg-btc" placeholder="Wallet BTC">
+                <input type="text" id="cfg-usdt" placeholder="Wallet USDT">
+                <button class="btn btn-btc" onclick="salvarConfig()" style="margin:0">SALVAR WALLETS</button>
+            </div>
+            <hr style="margin:25px 0">
             <input type="hidden" id="adm-id">
-            <input type="text" id="adm-nome" placeholder="Nome do Serviço" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="text" id="adm-foto" placeholder="Link da Foto" style="width:94%; padding:10px; margin-bottom:10px;">
-            <button class="btn btn-pix" id="btn-salvar-prod" onclick="salvarProduto()">ADICIONAR À VITRINE</button>
-
-            <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--secundaria);">
-            <h4>Itens Ativos</h4>
+            <input type="text" id="adm-nome" placeholder="Produto" style="width:94%; margin-bottom:10px; padding:10px;">
+            <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; margin-bottom:10px; padding:10px;">
+            <input type="text" id="adm-foto" placeholder="Link Foto" style="width:94%; margin-bottom:10px; padding:10px;">
+            <button class="btn btn-pix" id="btn-salvar-prod" onclick="salvarProduto()">SALVAR PRODUTO</button>
+            
             <hr>
-<h4>Gestão de Cupons</h4>
-<input type="text" id="adm-cupom-nome" placeholder="Código (ex: CURA10)" style="width:60%;">
-<input type="number" id="adm-cupom-pct" placeholder="%" style="width:20%;">
-<button onclick="salvarCupom()">+</button>
-<div id="lista-cupons-admin"></div>
-
-<hr>
-<h4>Gestão de Depoimentos</h4>
-<input type="text" id="adm-depo-nome" placeholder="Nome do Cliente" style="width:94%;">
-<textarea id="adm-depo-txt" placeholder="Depoimento" style="width:94%; margin:10px 0;"></textarea>
-<button onclick="salvarDepoimento()" class="btn btn-btc">ADICIONAR DEPOIMENTO</button>
+            <h4>Cupons: <input type="text" id="c-nome" placeholder="NOME" style="width:80px;"> <input type="number" id="c-pct" placeholder="%" style="width:50px;"> <button onclick="addCupom()">+</button></h4>
+            <div id="adm-cupons-lista"></div>
+            
+            <hr>
+            <h4>Depoimentos: <input type="text" id="d-nome" placeholder="Cliente" style="width:94%;"><textarea id="d-txt" placeholder="Texto" style="width:94%; margin-top:5px;"></textarea><button onclick="addDepo()" class="btn btn-btc">ADD DEPOIMENTO</button></h4>
+            
+            <hr>
+            <h4>Inventário</h4>
             <div id="lista-admin"></div>
         </div>
     </div>
 </div>
 
 <footer>
-    <p>&copy; 2026 Espaço Cura & Cuidado</p>
-    <span class="link-footer" onclick="abrirPolitica('seguranca')">Segurança</span> | 
-    <span class="link-footer" onclick="abrirPolitica('devolucao')">Trocas e Devoluções</span>
+    <span onclick="abrirPol('s')">Segurança</span> | <span onclick="abrirPol('d')">Trocas</span>
+    <p>&copy; 2026 Espaço Cura & Cuidado - V3.0</p>
 </footer>
 
 <script>
-    const BTC_PADRAO = "bc1q75yqaqav9l4vx8anplha6pqg7vu0n6rrrfgs0q";
-    const USDT_PADRAO = "0xf3Bd1DD07be863130F1508254A91B6027C07048B";
     const SEU_TEL = "5585991561497"; 
-
-    let db = JSON.parse(localStorage.getItem('cura_v2_db')) || { produtos: [], config: { pix: '', btc: BTC_PADRAO, usdt: USDT_PADRAO } };
-    let cart = [];
-    let prices = { btc: 0, usdt: 0 };
+    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], depoimentos: [], config: { pix: '', btc: '', usdt: '' } };
+    let cart = []; let prices = { btc: 0, usdt: 0 }; let descPct = 0;
 
     async function obterCotacoes() {
         try {
             const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether&vs_currencies=brl');
             const data = await res.json();
-            prices.btc = data.bitcoin.brl;
-            prices.usdt = data.tether.brl;
+            prices.btc = data.bitcoin.brl; prices.usdt = data.tether.brl;
             renderizar();
         } catch (e) { console.log("Erro API"); }
     }
 
     function salvarConfig() {
         db.config.pix = document.getElementById('cfg-pix').value;
-        db.config.btc = document.getElementById('cfg-btc').value || BTC_PADRAO;
-        db.config.usdt = document.getElementById('cfg-usdt').value || USDT_PADRAO;
-        localStorage.setItem('cura_v2_db', JSON.stringify(db));
-        notify("✅ Configurações Salvas!");
+        db.config.btc = document.getElementById('cfg-btc').value;
+        db.config.usdt = document.getElementById('cfg-usdt').value;
+        localStorage.setItem('cura_v3_db', JSON.stringify(db));
+        notify("Configurações Salvas!");
     }
 
     function salvarProduto() {
@@ -181,235 +167,85 @@
         const nome = document.getElementById('adm-nome').value;
         const preco = parseFloat(document.getElementById('adm-preco').value);
         const foto = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
-        
         if(!nome || !preco) return;
-
-        if(id) { // Editando
-            const index = db.produtos.findIndex(p => p.id == id);
-            db.produtos[index] = { id: Number(id), nome, preco, foto };
-        } else { // Novo
-            db.produtos.push({ id: Date.now(), nome, preco, foto });
-        }
-
-        localStorage.setItem('cura_v2_db', JSON.stringify(db));
-        limparFormAdmin();
-        renderizar();
-        notify("Sucesso!");
+        if(id) { const i = db.produtos.findIndex(p => p.id == id); db.produtos[i] = {id: Number(id), nome, preco, foto}; }
+        else { db.produtos.push({id: Date.now(), nome, preco, foto}); }
+        localStorage.setItem('cura_v3_db', JSON.stringify(db));
+        limpar(); renderizar(); notify("Produto Atualizado!");
     }
 
-    function prepararEdicao(id) {
-        const p = db.produtos.find(p => p.id === id);
-        document.getElementById('adm-id').value = p.id;
-        document.getElementById('adm-nome').value = p.nome;
-        document.getElementById('adm-preco').value = p.preco;
-        document.getElementById('adm-foto').value = p.foto;
-        document.getElementById('form-titulo').innerText = "Alterar Item";
-        document.getElementById('btn-salvar-prod').innerText = "SALVAR ALTERAÇÕES";
-        window.scrollTo(0,0);
+    function addCupom() {
+        const nome = document.getElementById('c-nome').value.toUpperCase();
+        const pct = parseInt(document.getElementById('c-pct').value);
+        if(nome && pct) { db.cupons.push({nome, pct}); localStorage.setItem('cura_v3_db', JSON.stringify(db)); renderizar(); }
     }
 
-    function removerProduto(id) {
-        if(confirm("Excluir este item permanentemente?")) {
-            db.produtos = db.produtos.filter(p => p.id !== id);
-            localStorage.setItem('cura_v2_db', JSON.stringify(db));
-            renderizar();
-        }
+    function addDepo() {
+        const nome = document.getElementById('d-nome').value;
+        const texto = document.getElementById('d-txt').value;
+        if(nome && texto) { db.depoimentos.push({nome, texto}); localStorage.setItem('cura_v3_db', JSON.stringify(db)); renderizar(); notify("Depoimento OK!"); }
     }
 
-    function limparFormAdmin() {
-        document.getElementById('adm-id').value = "";
-        document.getElementById('adm-nome').value = "";
-        document.getElementById('adm-preco').value = "";
-        document.getElementById('adm-foto').value = "";
-        document.getElementById('form-titulo').innerText = "Novo Produto";
-        document.getElementById('btn-salvar-prod').innerText = "ADICIONAR À VITRINE";
+    function aplicarCupom() {
+        const cod = document.getElementById('cupom-input').value.toUpperCase();
+        const c = db.cupons.find(x => x.nome === cod);
+        if(c) { descPct = c.pct; document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Cupom ${cod} (${c.pct}%) Ativo!</span>`; renderizar(); }
+        else { alert("Cupom não encontrado"); }
     }
 
     function renderizar() {
-        const vitrine = document.getElementById('vitrine');
-        const listaAdmin = document.getElementById('lista-admin');
-        
-        vitrine.innerHTML = db.produtos.map(p => {
-            const vBTC = prices.btc > 0 ? (p.preco / prices.btc).toFixed(8) : "...";
-            const vUSDT = prices.usdt > 0 ? (p.preco / prices.usdt).toFixed(2) : "...";
-            return `<div class="produto-card">
-                <div class="carrossel"><img src="${p.foto}"></div>
-                <div class="produto-info">
-                    <h3 style="margin:0 0 10px 0;">${p.nome}</h3>
-                    <div class="preco-brl">R$ ${p.preco.toFixed(2)}</div>
-                    <div class="precos-cripto">
-                        <span class="selo-cripto selo-btc">₿ ${vBTC}</span>
-                        <span class="selo-cripto selo-usdt">₮ ${vUSDT}</span>
-                    </div>
-                    <button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button>
-                </div>
-            </div>`;
+        document.getElementById('vitrine').innerHTML = db.produtos.map(p => {
+            const b = (p.preco / prices.btc).toFixed(8); const u = (p.preco / prices.usdt).toFixed(2);
+            return `<div class="produto-card"><div class="carrossel"><img src="${p.foto}"></div><div class="produto-info"><h3>${p.nome}</h3><div class="preco-brl">R$ ${p.preco.toFixed(2)}</div><div class="precos-cripto"><span class="selo-cripto selo-btc">₿ ${b}</span><span class="selo-cripto selo-usdt">₮ ${u}</span></div><button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button></div></div>`;
         }).join('');
 
-        listaAdmin.innerHTML = db.produtos.map(p => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; font-size:0.85em;">
-                <span>${p.nome}</span>
-                <div>
-                    <button onclick="prepararEdicao(${p.id})" style="color:blue; border:none; background:none; cursor:pointer; margin-right:10px;">[ALTERAR]</button>
-                    <button onclick="removerProduto(${p.id})" style="color:red; border:none; background:none; cursor:pointer;">[EXCLUIR]</button>
-                </div>
-            </div>
-        `).join('') || '<p style="color:#999">Vazio.</p>';
+        document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `<div class="depo-card"><p style="font-style:italic">"${d.texto}"</p><strong>- ${d.nome}</strong></div>`).join('');
 
-        document.getElementById('count').innerText = cart.length;
-        document.getElementById('total-carrinho').innerText = `R$ ${cart.reduce((acc, i) => acc + i.preco, 0).toFixed(2)}`;
-        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
-    }
-
-    function abrirCheckout(tipo) {
-        if(cart.length === 0) return;
-        const totalBRL = cart.reduce((acc, i) => acc + i.preco, 0);
-        const modal = document.getElementById('modal-checkout');
-        const conteudo = document.getElementById('checkout-conteudo');
-        modal.style.display = 'flex';
-
-        let valorFinal, chave, cor;
-        if(tipo === 'PIX') { valorFinal = `R$ ${totalBRL.toFixed(2)}`; chave = db.config.pix; cor = 'var(--sucesso)'; }
-        else if(tipo === 'BTC') { valorFinal = `₿ ${(totalBRL/prices.btc).toFixed(8)} BTC`; chave = db.config.btc; cor = 'var(--cripto-btc)'; }
-        else { valorFinal = `₮ ${(totalBRL/prices.usdt).toFixed(2)} USDT`; chave = db.config.usdt; cor = 'var(--cripto-usdt)'; }
-
-        conteudo.innerHTML = `
-            <h3 style="margin-top:0">Pagamento ${tipo}</h3>
-            <p style="font-size:1.3em; font-weight:bold; color:${cor}">${valorFinal}</p>
-            <div class="chave-box" onclick="copiar('${chave}', this)">${chave || 'Não cadastrada'}</div>
-            <p style="font-size:0.75em; color:#666; margin-bottom:15px;">Clique no código acima para copiar</p>
-            ${tipo === 'USDT' ? `
-                <div style="margin: 15px 0; padding: 10px; border-radius: 10px; background: #f0fdf4; border: 1px dashed var(--cripto-usdt);">
-                    <p style="font-size:0.7em; color: #166534; margin: 0 0 8px 0;"><strong>Segurança:</strong> Verifique a transação na Blockchain.</p>
-                    <a href="https://polygonscan.com/address/${db.config.usdt}" target="_blank" style="font-size:0.75em; color:var(--cripto-usdt); text-decoration:none; font-weight:bold;">🌐 VERIFICAR REDE POLYGON →</a>
-                </div>
-            ` : ''}
-            <button class="btn" style="background:${cor}; color:white" onclick="enviarWhats('${tipo}')">ENVIAR COMPROVANTE</button>
-            <button class="btn" style="background:none; color:#999" onclick="fecharCheckout()">CANCELAR</button>
-        `;
-    }
-
-    function abrirPolitica(tipo) {
-        const modal = document.getElementById('modal-politica');
-        const titulo = document.getElementById('politica-titulo');
-        const texto = document.getElementById('politica-texto');
+        document.getElementById('lista-admin').innerHTML = db.produtos.map(p => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;"><span>${p.nome}</span><div><button onclick="preparar(${p.id})">✏️</button><button onclick="remover(${p.id})">🗑️</button></div></div>`).join('');
         
-        if(tipo === 'seguranca') {
-            titulo.innerText = "Política de Segurança";
-            texto.innerHTML = `<ul>
-                <li><strong>Criptografia P2P:</strong> O pagamento é direto para sua carteira, sem intermediários.</li>
-                <li><strong>Custódia:</strong> Nunca solicitamos sua frase semente (12 palavras).</li>
-                <li><strong>Privacidade:</strong> Seus dados de contato são usados apenas para a prestação do serviço.</li>
-                <li><strong>Blockchain:</strong> Todas as transações cripto são imutáveis e verificáveis publicamente.</li>
-            </ul>`;
-        } else {
-            titulo.innerText = "Trocas e Devoluções";
-            texto.innerHTML = `<p>Seguimos os padrões Amazon e Mercado Livre para sua total confiança:</p>
-            <ol>
-                <li><strong>Arrependimento:</strong> Você tem 7 dias após o recebimento para solicitar a devolução.</li>
-                <li><strong>Correios:</strong> Fornecemos um código de postagem reversa. Você não paga o frete de volta em caso de defeito.</li>
-                <li><strong>Embalagem:</strong> O item deve ser enviado na embalagem original para evitar danos.</li>
-                <li><strong>Reembolso:</strong> 
-                    <br>- PIX: Em até 24h após conferência.
-                    <br>- Cripto: Valor estornado na moeda original (BTC/USDT) conforme cotação do dia da compra.</li>
-            </ol>`;
-        }
+        const total = cart.reduce((a, b) => a + b.preco, 0);
+        const final = total * (1 - (descPct/100));
+        document.getElementById('total-carrinho').innerHTML = descPct > 0 ? `<small style="text-decoration:line-through">R$ ${total.toFixed(2)}</small> R$ ${final.toFixed(2)}` : `R$ ${total.toFixed(2)}`;
+        document.getElementById('count').innerText = cart.length;
+        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; font-size:0.9em;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
+    }
+
+    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Na bolsa!"); }
+    function preparar(id) { const p = db.produtos.find(x => x.id === id); document.getElementById('adm-id').value = p.id; document.getElementById('adm-nome').value = p.nome; document.getElementById('adm-preco').value = p.preco; document.getElementById('adm-foto').value = p.foto; document.getElementById('btn-salvar-prod').innerText = "ATUALIZAR"; window.scrollTo(0,0); }
+    function remover(id) { db.produtos = db.produtos.filter(p => p.id !== id); localStorage.setItem('cura_v3_db', JSON.stringify(db)); renderizar(); }
+    function limpar() { document.getElementById('adm-id').value=""; document.getElementById('adm-nome').value=""; document.getElementById('adm-preco').value=""; document.getElementById('adm-foto').value=""; document.getElementById('btn-salvar-prod').innerText = "SALVAR PRODUTO"; }
+
+    // ATALHO SECRETO V3.0 (Shift + Alt + A)
+    window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') { e.preventDefault(); acessoAdmin(); } });
+
+    function acessoAdmin() {
+        const pass = prompt("Senha de Acesso:");
+        if(pass === "Mychell1904") { mostrar('admin'); } else { alert("Acesso Negado"); }
+    }
+
+    function abrirCheckout(t) {
+        const modal = document.getElementById('modal-checkout');
+        const total = cart.reduce((a, b) => a + b.preco, 0) * (1 - (descPct/100));
+        let v, c, k; 
+        if(t === 'PIX') { v = `R$ ${total.toFixed(2)}`; k = db.config.pix; c = 'var(--sucesso)'; }
+        else if(t === 'BTC') { v = `₿ ${(total/prices.btc).toFixed(8)} BTC`; k = db.config.btc; c = 'var(--cripto-btc)'; }
+        else { v = `₮ ${(total/prices.usdt).toFixed(2)} USDT`; k = db.config.usdt; c = 'var(--cripto-usdt)'; }
+        
+        document.getElementById('checkout-conteudo').innerHTML = `<h3>Pagar ${t}</h3><h2 style="color:${c}">${v}</h2><div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; font-family:monospace; cursor:pointer;" onclick="copiar('${k}', this)">${k || 'Não cadastrada'}</div><button class="btn" style="background:${c}; color:white" onclick="window.open('https://wa.me/${SEU_TEL}?text=Pago ${t} de ${v}')">ENVIAR COMPROVANTE</button><button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
         modal.style.display = 'flex';
     }
 
-    function fecharPolitica() { document.getElementById('modal-politica').style.display = 'none'; }
-    function copiar(t, el) { navigator.clipboard.writeText(t); const old = el.innerText; el.innerText = "✅ COPIADO!"; setTimeout(() => el.innerText = old, 2000); }
-    function enviarWhats(m) { window.open(`https://wa.me/${SEU_TEL}?text=Olá! Realizei o pagamento via ${m}. Segue o comprovante.`, '_blank'); }
-    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado à Bolsa!"); }
-    function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
+    function copiar(t, el) { navigator.clipboard.writeText(t); el.innerText = "Copiado!"; setTimeout(() => renderizar(), 1000); }
     function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
-    
-    function acessoAdmin() {
-        const loginOverlay = document.createElement('div');
-        loginOverlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:5000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";        
-        loginOverlay.innerHTML = `
-            <div style="background:white; padding:30px; border-radius:20px; text-align:center; width:280px;">
-                <h4 style="margin-top:0; font-family:'Playfair Display'; color:var(--primaria);">Acesso Restrito</h4>
-                <input type="password" id="pass-input" placeholder="Sua Senha" style="width:90%; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px; text-align:center; font-size:1.2em;">
-                <button id="btn-entrar" class="btn btn-btc" style="margin:0;">ENTRAR</button>
-                <button id="btn-cancel" style="background:none; border:none; color:#999; margin-top:15px; cursor:pointer;">CANCELAR</button>
-            </div>
-        `;
-        document.body.appendChild(loginOverlay);
-        document.getElementById('pass-input').focus();
-        const verificar = () => {
-            if(document.getElementById('pass-input').value === "Mychell1904") {
-                document.body.removeChild(loginOverlay);
-                mostrar('admin');
-            } else { alert("Senha Incorreta!"); }
-        };
-        document.getElementById('btn-entrar').onclick = verificar;
-        document.getElementById('btn-cancel').onclick = () => document.body.removeChild(loginOverlay);
-    }
-    
     function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
+    function abrirPol(t) { 
+        const m = document.getElementById('modal-politica');
+        document.getElementById('p-titulo').innerText = t === 's' ? "Segurança" : "Devolução";
+        document.getElementById('p-texto').innerHTML = t === 's' ? "Site protegido com P2P e SSL. Não guardamos dados bancários." : "Devolução em 7 dias. Frete reverso via Correios.";
+        m.style.display = 'flex';
+    }
+    function fecharPolitica() { document.getElementById('modal-politica').style.display = 'none'; }
     obterCotacoes();
-    // ATALHO SECRETO VERSÃO 3.0: Shift + Alt + A para abrir Admin
-    window.addEventListener('keydown', function(e) {
-        if (e.shiftKey && e.altKey && e.code === 'KeyA') {
-            e.preventDefault(); // Evita qualquer conflito de sistema
-            acessoAdmin();
-        }
-    });
-    // Novas bases de dados
-    db.cupons = db.cupons || [];
-    db.depoimentos = db.depoimentos || [];
-    let descontoAtivo = 0;
-
-    function aplicarCupom() {
-        const cod = document.getElementById('cupom-digitado').value.toUpperCase();
-        const cupom = db.cupons.find(c => c.nome === cod);
-        if(cupom) {
-            descontoAtivo = cupom.pct;
-            document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Cupom ${cod} aplicado: ${descontoAtivo}% de desconto!</span>`;
-            renderizar();
-        } else {
-            alert("Cupom inválido");
-        }
-    }
-
-    function salvarCupom() {
-        const nome = document.getElementById('adm-cupom-nome').value.toUpperCase();
-        const pct = parseInt(document.getElementById('adm-cupom-pct').value);
-        if(nome && pct) {
-            db.cupons.push({nome, pct});
-            localStorage.setItem('cura_v2_db', JSON.stringify(db));
-            renderizar();
-        }
-    }
-
-    function salvarDepoimento() {
-        const nome = document.getElementById('adm-depo-nome').value;
-        const texto = document.getElementById('adm-depo-txt').value;
-        if(nome && texto) {
-            db.depoimentos.push({id: Date.now(), nome, texto});
-            localStorage.setItem('cura_v2_db', JSON.stringify(db));
-            renderizar();
-            notify("Depoimento Adicionado!");
-        }
-    }
-
-    // Atualize sua função renderizar() para incluir o desconto e os novos itens
-    // Dentro da renderizar(), onde calcula o total, mude para:
-    let totalOriginal = cart.reduce((acc, i) => acc + i.preco, 0);
-    let totalComDesconto = totalOriginal * (1 - (descontoAtivo / 100));
-    
-    document.getElementById('total-carrinho').innerHTML = descontoAtivo > 0 ? 
-        `<small style="text-decoration:line-through; opacity:0.5">R$ ${totalOriginal.toFixed(2)}</small><br>R$ ${totalComDesconto.toFixed(2)}` : 
-        `R$ ${totalOriginal.toFixed(2)}`;
-
-    // Renderizar depoimentos na loja
-    document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `
-        <div style="min-width:250px; background:var(--card); padding:20px; border-radius:20px; box-shadow:0 5px 15px rgba(0,0,0,0.05);">
-            <p style="font-style:italic">"${d.texto}"</p>
-            <strong style="color:var(--primaria)">- ${d.nome}</strong>
-        </div>
-    `).join('');
 </script>
 </body>
 </html>

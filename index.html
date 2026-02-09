@@ -152,27 +152,46 @@
         }
     }
 
-    // --- FUNÇÕES DE SALVAMENTO REMOTO ---
+    // --- FUNÇÕES DE SALVAMENTO REMOTO CORRIGIDAS ---
     async function salvarProduto() {
         const n = document.getElementById('adm-nome').value;
-        const p = parseFloat(document.getElementById('adm-preco').value);
+        const p = document.getElementById('adm-preco').value;
         const f = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
+        
         if(n && p) {
-            notify("Salvando produto...");
-            await fetch(URL_PRODUTOS, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ nome: n, preco: p, foto: f }) });
-            document.getElementById('adm-nome').value = ""; document.getElementById('adm-preco').value = "";
-            setTimeout(carregarDadosSincronizados, 1500);
+            notify("Enviando Produto...");
+            try {
+                await fetch(URL_PRODUTOS, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    body: JSON.stringify({ nome: n, preco: p, foto: f })
+                });
+                notify("Produto enviado! Atualizando...");
+                document.getElementById('adm-nome').value = "";
+                document.getElementById('adm-preco').value = "";
+                setTimeout(carregarDadosSincronizados, 3000); // Espera 3s para o Google processar
+            } catch(e) { notify("Erro na conexão."); }
         }
     }
 
     async function addDepoimento() {
         const nome = document.getElementById('d-nome').value;
         const texto = document.getElementById('d-txt').value;
+        
         if(nome && texto) {
             notify("Publicando depoimento...");
-            await fetch(URL_DEPOIMENTOS, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ nome: nome, texto: texto }) });
-            document.getElementById('d-txt').value = "";
-            setTimeout(carregarDadosSincronizados, 1500);
+            try {
+                await fetch(URL_DEPOIMENTOS, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    body: JSON.stringify({ nome: nome, texto: texto })
+                });
+                notify("Publicado! Atualizando...");
+                document.getElementById('d-txt').value = "";
+                setTimeout(carregarDadosSincronizados, 3000);
+            } catch(e) { notify("Erro ao publicar."); }
         }
     }
 

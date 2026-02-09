@@ -104,6 +104,11 @@
             <input type="text" id="adm-foto" placeholder="Link Foto" style="width:94%; margin-bottom:5px;">
             <button class="btn btn-pix" onclick="salvarProduto()">SALVAR PRODUTO</button>
             <div id="lista-admin-produtos" style="margin-top:10px;"></div>
+            <h4>Depoimentos</h4>
+<input type="text" id="d-nome" placeholder="Nome do Cliente" style="width:94%; margin-bottom:5px;">
+<textarea id="d-txt" placeholder="Texto do depoimento..." style="width:94%; height:60px; margin-bottom:5px; border-radius:10px; padding:10px;"></textarea>
+<button onclick="addDepoimento()" class="btn btn-btc">PUBLICAR DEPOIMENTO</button>
+<div id="lista-depo-admin"></div>
         </div>
     </div>
 </div>
@@ -156,7 +161,37 @@
         document.getElementById('adm-foto').value = p.foto;
         window.scrollTo(0,0);
     }
+function addDepoimento() {
+    const nome = document.getElementById('d-nome').value;
+    const texto = document.getElementById('d-txt').value;
+    
+    if(nome && texto) {
+        // Adiciona ao banco de dados com um ID único
+        db.depoimentos.push({
+            id: Date.now(),
+            nome: nome,
+            texto: texto
+        });
+        save();      // Salva no navegador
+        renderizar(); // Atualiza a tela
+        
+        // Limpa os campos após salvar
+        document.getElementById('d-nome').value = "";
+        document.getElementById('d-txt').value = "";
+        notify("Depoimento publicado!");
+    } else {
+        alert("Preencha o nome e o texto do depoimento");
+    }
+}
 
+function removerDepo(id) {
+    if(confirm('Excluir este depoimento?')){
+        // Filtra a lista removendo o ID selecionado
+        db.depoimentos = db.depoimentos.filter(x => x.id != id);
+        save();
+        renderizar();
+    }
+}
     function removerProd(id) { if(confirm('Excluir?')){ db.produtos = db.produtos.filter(x => x.id != id); save(); renderizar(); } }
 
     function addCart(id) {
@@ -184,6 +219,12 @@
                     <button class="btn" style="background:var(--primaria); color:white" onclick="addCart('${p.id}')">RESERVAR</button>
                 </div>
             </div>`).join('');
+        document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `
+    <div class="depo-card">
+        <p>"${d.texto}"</p>
+        <strong>- ${d.nome}</strong>
+    </div>
+`).join('');    
 
         document.getElementById('lista-admin-produtos').innerHTML = db.produtos.map(p => `
             <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee;">
@@ -193,6 +234,12 @@
                     <button onclick="removerProd('${p.id}')" style="color:red">🗑️</button>
                 </div>
             </div>`).join('');
+        document.getElementById('lista-depo-admin').innerHTML = db.depoimentos.map(d => `
+    <div style="display:flex; justify-content:space-between; font-size:0.8em; padding:5px; border-bottom:1px solid #eee;">
+        <span>${d.nome}</span>
+        <button onclick="removerDepo('${d.id}')" style="color:red; background:none; border:none; cursor:pointer;">[x]</button>
+    </div>
+`).join('');
 
         const t = cart.reduce((a, b) => a + b.preco, 0);
         const f = t * (1 - (descPct/100));

@@ -226,7 +226,7 @@
     }
 
     function renderizar() {
-        document.getElementById('vitrine').innerHTML = db.produtos.map(p => `<div class="produto-card"><img src="${p.foto}"><div class="produto-info"><h3>${p.nome}</h3><div class="preco-brl">R$ ${p.preco.toFixed(2)}</div><div class="precos-cripto"><span class="selo-cripto selo-btc">₿ ${(p.preco/prices.btc).toFixed(8)}</span> <span class="selo-cripto selo-usdt">₮ ${(p.preco/prices.usdt).toFixed(2)}</span></div><button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button></div></div>`).join('');
+        document.getElementById('vitrine').innerHTML = db.produtos.map(p => `<div class="produto-card"><img src="${p.foto}"><div class="produto-info"><h3>${p.nome}</h3><div class="preco-brl">R$ ${p.preco.toFixed(2)}</div><div class="precos-cripto"><span class="selo-cripto selo-btc">₿ ${(p.preco/prices.btc).toFixed(8)}</span> <span class="selo-cripto selo-usdt">₮ ${(p.preco/prices.usdt).toFixed(2)}</span></div><button class="btn" style="background:var(--primaria); color:white"onclick="addCart('${p.id}')">RESERVAR</button></div></div>`).join('');
         
         document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `<div class="depo-card"><p>"${d.texto}"</p><strong>- ${d.nome}</strong></div>`).join('');
         
@@ -246,18 +246,16 @@
     }
 
    function addCart(id) {
-    // 1. Encontra o produto no banco de dados usando o ID
-    const produtoEncontrado = db.produtos.find(p => p.id === id);
+    // Usamos == (dois iguais) para ignorar se um é texto e o outro é número
+    const produtoEncontrado = db.produtos.find(p => p.id == id);
     
     if (produtoEncontrado) {
-        // 2. Adiciona à lista do carrinho
         cart.push(produtoEncontrado);
-        // 3. Atualiza a tela para mostrar o número novo na bolsa
         renderizar();
-        // 4. Mostra o aviso visual "Na bolsa!"
         notify("Adicionado à bolsa!");
     } else {
-        console.error("Produto não encontrado para o ID:", id);
+        alert("Erro: Item não encontrado no banco de dados.");
+        console.log("ID tentado:", id);
     }
 }
     

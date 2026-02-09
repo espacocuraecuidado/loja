@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Cura & Cuidado | V3.0 PRO</title>
+    <title>Espaço Cura & Cuidado | V3.0 Final</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primaria: #a68a78; --secundaria: #ece5df; --destaque: #8ca68e; --texto: #5a5552; --fundo: #f9f7f2; --card: #ffffff; --sucesso: #25D366; --cripto-btc: #f7931a; --cripto-usdt: #26a17b; }
         @media (prefers-color-scheme: dark) {
             :root { --fundo: #1a1817; --card: #2a2725; --texto: #e2ddd9; --secundaria: #3d3834; }
-            header, .checkout-box, .politica-box, .produto-card, .depo-card, .login-box { background: var(--card) !important; color: var(--texto); }
+            header, .checkout-box, .politica-box, .produto-card, .login-box { background: var(--card) !important; color: var(--texto); }
             input, textarea { background: #333; color: white; border: 1px solid #444; }
         }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); transition: 0.3s; }
@@ -25,22 +25,13 @@
         .selo-cripto { font-size: 0.7em; font-weight: 600; padding: 3px 8px; border-radius: 50px; }
         .selo-btc { color: var(--cripto-btc); background: rgba(247, 147, 26, 0.1); }
         .selo-usdt { color: var(--cripto-usdt); background: rgba(38, 161, 123, 0.1); }
-        
-        /* MODAIS E LOGIN */
-        #modal-checkout, .modal-politica, #modal-login { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .checkout-box, .politica-box, .login-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
-        
+        #modal-checkout, #modal-login { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .checkout-box, .login-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
         .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-pix { background: var(--sucesso); color: white; }
         .btn-btc { background: var(--cripto-btc); color: white; }
-        .btn-usdt { background: var(--cripto-usdt); color: white; }
-        
         .secao { display: none; } .ativa { display: block; }
         #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 6000; }
-        
-        .depoimento-sec { margin-top: 50px; padding: 40px 20px; background: var(--secundaria); border-radius: 30px; text-align: center; }
-        .depo-container { display: flex; overflow-x: auto; gap: 20px; padding: 20px 0; }
-        .depo-card { min-width: 250px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         footer { padding: 40px; text-align: center; font-size: 0.8em; opacity: 0.7; }
     </style>
 </head>
@@ -68,13 +59,7 @@
 </header>
 
 <div class="container">
-    <div id="loja" class="secao ativa">
-        <div class="vitrine" id="vitrine"></div>
-        <div class="depoimento-sec">
-            <h3 style="font-family:'Playfair Display'">Vozes do Cuidado</h3>
-            <div class="depo-container" id="lista-depoimentos"></div>
-        </div>
-    </div>
+    <div id="loja" class="secao ativa"><div class="vitrine" id="vitrine"></div></div>
 
     <div id="carrinho" class="secao">
         <div style="max-width:450px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--secundaria);">
@@ -82,7 +67,7 @@
             <div id="lista-carrinho"></div>
             <div style="display:flex; gap:10px; margin:20px 0;">
                 <input type="text" id="cupom-input" placeholder="Cupom" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--secundaria);">
-                <button onclick="aplicarCupom()" style="background:var(--primaria); color:white; border:none; border-radius:10px; padding:0 15px; cursor:pointer;">APLICAR</button>
+                <button onclick="aplicarCupom()" style="background:var(--primaria); color:white; border:none; border-radius:10px; padding:0 15px; cursor:pointer;">OK</button>
             </div>
             <div id="msg-cupom" style="font-size:0.8em; margin-bottom:10px;"></div>
             <div id="total-carrinho" style="font-size:1.6em; color:var(--primaria); text-align:right; font-weight:bold; margin:20px 0;"></div>
@@ -95,7 +80,7 @@
     <div id="admin" class="secao">
         <div style="max-width:600px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--primaria);">
             <h3>Painel V3.0</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
                 <input type="text" id="cfg-pix" placeholder="Chave PIX">
                 <input type="text" id="cfg-btc" placeholder="Wallet BTC">
                 <input type="text" id="cfg-usdt" placeholder="Wallet USDT">
@@ -103,35 +88,28 @@
             </div>
             <hr>
             <h4>Novo Produto</h4>
-            <input type="text" id="adm-nome" placeholder="Produto" style="width:94%; margin-bottom:5px;">
+            <input type="text" id="adm-nome" placeholder="Nome" style="width:94%; margin-bottom:5px;">
             <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; margin-bottom:5px;">
             <input type="text" id="adm-foto" placeholder="Link Foto" style="width:94%; margin-bottom:5px;">
-            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR</button>
-            
+            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR PRODUTO</button>
             <hr>
-            <h4>Cupons com Expiração</h4>
+            <h4>Cupons Ativos</h4>
             <div style="display:flex; gap:5px; margin-bottom:10px;">
-                <input type="text" id="c-nome" placeholder="CÓDIGO" style="width:40%">
-                <input type="number" id="c-pct" placeholder="%" style="width:20%">
-                <input type="number" id="c-hrs" placeholder="Hrs" style="width:20%">
-                <button onclick="addCupom()" style="width:20%; background:var(--destaque); color:white; border:none; border-radius:5px;">+</button>
+                <input type="text" id="c-nome" placeholder="CÓDIGO" style="width:40%"><input type="number" id="c-pct" placeholder="%" style="width:20%"><input type="number" id="c-hrs" placeholder="Hrs" style="width:20%"><button onclick="addCupom()" style="width:15%; background:var(--destaque); color:white; border:none; border-radius:5px;">+</button>
             </div>
             <div id="adm-cupons-lista"></div>
-
             <hr>
-            <h4>Itens e Depoimentos</h4>
-            <div id="lista-admin"></div>
+            <h4>Produtos no Inventário</h4>
+            <div id="lista-admin-produtos"></div>
         </div>
     </div>
 </div>
 
-<footer>
-    <p>&copy; 2026 Espaço Cura & Cuidado - V3.0</p>
-</footer>
+<footer><p>&copy; 2026 Espaço Cura & Cuidado - V3.0 Finalizado</p></footer>
 
 <script>
     const SEU_TEL = "5585991561497";
-    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], depoimentos: [], config: { pix:'', btc:'', usdt:'' } };
+    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], config: { pix:'', btc:'', usdt:'' } };
     let cart = []; let prices = { btc: 0, usdt: 0 }; let descPct = 0;
 
     async function obterCotacoes() {
@@ -143,52 +121,31 @@
         } catch (e) { console.log("Erro API"); }
     }
 
-    // ATALHO E LOGIN
     window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') { e.preventDefault(); document.getElementById('modal-login').style.display='flex'; document.getElementById('senha-admin').focus(); } });
     function fecharLogin() { document.getElementById('modal-login').style.display='none'; document.getElementById('senha-admin').value=''; }
-    function verificarSenha() {
-        if(document.getElementById('senha-admin').value === "Mychell1904") { fecharLogin(); mostrar('admin'); }
-        else { alert("Senha incorreta"); }
-    }
+    function verificarSenha() { if(document.getElementById('senha-admin').value === "Mychell1904") { fecharLogin(); mostrar('admin'); } else { alert("Senha incorreta"); } }
 
-    // CUPONS COM TIMER
     function addCupom() {
-        const nome = document.getElementById('c-nome').value.toUpperCase();
-        const pct = parseInt(document.getElementById('c-pct').value);
-        const hrs = parseInt(document.getElementById('c-hrs').value) || 24;
-        if(nome && pct) {
-            const expiraEm = Date.now() + (hrs * 60 * 60 * 1000);
-            db.cupons.push({nome, pct, expiraEm});
-            save(); renderizar(); notify("Cupom Criado!");
-        }
+        const n = document.getElementById('c-nome').value.toUpperCase();
+        const p = parseInt(document.getElementById('c-pct').value);
+        const h = parseInt(document.getElementById('c-hrs').value) || 24;
+        if(n && p) { db.cupons.push({nome:n, pct:p, expiraEm: Date.now()+(h*3600000)}); save(); renderizar(); }
     }
-    function removerCupom(idx) { db.cupons.splice(idx, 1); save(); renderizar(); }
+    function removerCupom(i) { db.cupons.splice(i, 1); save(); renderizar(); }
+    function removerProd(id) { db.produtos = db.produtos.filter(p => p.id !== id); save(); renderizar(); }
 
-    function checarExpira() {
-        const agora = Date.now();
-        let mudou = false;
-        db.cupons = db.cupons.filter(c => {
-            if(agora > c.expiraEm) { mudou = true; return false; }
-            return true;
-        });
-        if(mudou) { save(); renderizar(); }
-    }
-    setInterval(checarExpira, 1000);
-
-    // FUNÇÕES CORE
     function save() { localStorage.setItem('cura_v3_db', JSON.stringify(db)); }
-    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
     function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
-    
+    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
+
     function aplicarCupom() {
         const cod = document.getElementById('cupom-input').value.toUpperCase();
         const c = db.cupons.find(x => x.nome === cod);
-        if(c) { descPct = c.pct; document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Cupom Ativo: ${c.pct}%</span>`; renderizar(); }
+        if(c) { descPct = c.pct; document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Desconto de ${c.pct}% aplicado!</span>`; renderizar(); }
         else { alert("Cupom inválido ou expirado"); }
     }
 
     function renderizar() {
-        // Vitrine
         document.getElementById('vitrine').innerHTML = db.produtos.map(p => `
             <div class="produto-card">
                 <img src="${p.foto}">
@@ -201,40 +158,35 @@
                     </div>
                     <button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('');
 
-        // Cupons Admin
         document.getElementById('adm-cupons-lista').innerHTML = db.cupons.map((c, i) => {
-            const m = Math.max(0, Math.floor((c.expiraEm - Date.now()) / 60000));
-            return `<div style="display:flex; justify-content:space-between; background:var(--secundaria); padding:8px; border-radius:8px; margin-bottom:5px; font-size:0.8em">
-                <span><b>${c.nome}</b> (${c.pct}%) - Expira em: ${Math.floor(m/60)}h ${m%60}m</span>
-                <button onclick="removerCupom(${i})" style="border:none; color:red; cursor:pointer; background:none; font-weight:bold">✖</button>
-            </div>`;
-        }).join('');
+            const min = Math.max(0, Math.floor((c.expiraEm - Date.now()) / 60000));
+            return `<div style="display:flex; justify-content:space-between; background:#f4f4f4; padding:5px; margin-bottom:5px; font-size:0.8em; border-radius:5px;">
+                <span><b>${c.nome}</b> (${c.pct}%) - Expira em: ${Math.floor(min/60)}h ${min%60}m</span>
+                <button onclick="removerCupom(${i})" style="border:none; color:red; cursor:pointer; background:none;">✖</button>
+            </div>`; }).join('');
 
-        // Carrinho
-        const total = cart.reduce((a, b) => a + b.preco, 0);
-        const final = total * (1 - (descPct/100));
-        document.getElementById('total-carrinho').innerHTML = descPct > 0 ? `<small style="text-decoration:line-through; opacity:0.5">R$ ${total.toFixed(2)}</small> R$ ${final.toFixed(2)}` : `R$ ${total.toFixed(2)}`;
+        document.getElementById('lista-admin-produtos').innerHTML = db.produtos.map(p => `
+            <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee; font-size:0.85em;">
+                <span>${p.nome} (R$ ${p.preco})</span>
+                <button onclick="removerProd(${p.id})" style="border:none; color:red; cursor:pointer; background:none;">[EXCLUIR]</button>
+            </div>`).join('') || 'Nenhum produto.';
+
+        const t = cart.reduce((a, b) => a + b.preco, 0);
+        const f = t * (1 - (descPct/100));
+        document.getElementById('total-carrinho').innerHTML = descPct > 0 ? `<small style="text-decoration:line-through; opacity:0.5">R$ ${t.toFixed(2)}</small> R$ ${f.toFixed(2)}` : `R$ ${t.toFixed(2)}`;
         document.getElementById('count').innerText = cart.length;
-        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px 0"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
+        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; font-size:0.9em; padding:3px 0"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
     }
 
     function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado!"); }
-    
-    function salvarConfig() {
-        db.config.pix = document.getElementById('cfg-pix').value;
-        db.config.btc = document.getElementById('cfg-btc').value;
-        db.config.usdt = document.getElementById('cfg-usdt').value;
-        save(); notify("Salvo!");
-    }
-
+    function salvarConfig() { db.config.pix = document.getElementById('cfg-pix').value; db.config.btc = document.getElementById('cfg-btc').value; db.config.usdt = document.getElementById('cfg-usdt').value; save(); notify("Configurações Salvas!"); }
     function salvarProduto() {
-        const nome = document.getElementById('adm-nome').value;
-        const preco = parseFloat(document.getElementById('adm-preco').value);
-        const foto = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
-        if(nome && preco) { db.produtos.push({id: Date.now(), nome, preco, foto}); save(); renderizar(); notify("Produto OK!"); }
+        const n = document.getElementById('adm-nome').value;
+        const p = parseFloat(document.getElementById('adm-preco').value);
+        const f = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
+        if(n && p) { db.produtos.push({id: Date.now(), nome:n, preco:p, foto:f}); save(); renderizar(); notify("Produto Adicionado!"); }
     }
 
     function abrirCheckout(t) {
@@ -244,11 +196,10 @@
         if(t==='PIX'){ v=`R$ ${total.toFixed(2)}`; k=db.config.pix; c='var(--sucesso)'; }
         else if(t==='BTC'){ v=`₿ ${(total/prices.btc).toFixed(8)}`; k=db.config.btc; c='var(--cripto-btc)'; }
         else { v=`₮ ${(total/prices.usdt).toFixed(2)}`; k=db.config.usdt; c='var(--cripto-usdt)'; }
-        
         document.getElementById('checkout-conteudo').innerHTML = `<h3>Pagar via ${t}</h3><h2 style="color:${c}">${v}</h2><div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; cursor:pointer" onclick="navigator.clipboard.writeText('${k}'); this.innerText='COPIADO!'">${k || 'Sem chave'}</div><button class="btn" style="background:${c}; color:white" onclick="window.open('https://wa.me/${SEU_TEL}?text=Pago ${t} de ${v}')">ENVIAR COMPROVANTE</button><button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
         document.getElementById('modal-checkout').style.display='flex';
     }
-
+    setInterval(() => { let m=false; db.cupons=db.cupons.filter(c=>{if(Date.now()>c.expiraEm){m=true; return false;} return true;}); if(m){save(); renderizar();} }, 10000);
     obterCotacoes();
 </script>
 </body>

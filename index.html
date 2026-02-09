@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Cura & Cuidado | V3.0 Final</title>
+    <title>Espaço Cura & Cuidado | V3.1 PRO</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primaria: #a68a78; --secundaria: #ece5df; --destaque: #8ca68e; --texto: #5a5552; --fundo: #f9f7f2; --card: #ffffff; --sucesso: #25D366; --cripto-btc: #f7931a; --cripto-usdt: #26a17b; }
         @media (prefers-color-scheme: dark) {
             :root { --fundo: #1a1817; --card: #2a2725; --texto: #e2ddd9; --secundaria: #3d3834; }
-            header, .checkout-box, .politica-box, .produto-card, .login-box { background: var(--card) !important; color: var(--texto); }
+            header, .checkout-box, .produto-card, .login-box { background: var(--card) !important; color: var(--texto); }
             input, textarea { background: #333; color: white; border: 1px solid #444; }
         }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); transition: 0.3s; }
@@ -17,7 +18,7 @@
         .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
         .vitrine { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; transition: 0.3s; }
+        .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; }
         .produto-card img { width: 100%; height: 250px; object-fit: cover; }
         .produto-info { padding: 20px; text-align: center; }
         .preco-brl { font-size: 1.4em; font-weight: bold; color: var(--primaria); }
@@ -26,12 +27,15 @@
         .selo-btc { color: var(--cripto-btc); background: rgba(247, 147, 26, 0.1); }
         .selo-usdt { color: var(--cripto-usdt); background: rgba(38, 161, 123, 0.1); }
         #modal-checkout, #modal-login { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .checkout-box, .login-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
+        .checkout-box, .login-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; max-height: 85vh; overflow-y: auto; }
         .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-pix { background: var(--sucesso); color: white; }
         .btn-btc { background: var(--cripto-btc); color: white; }
         .secao { display: none; } .ativa { display: block; }
         #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 6000; }
+        .depoimento-sec { margin-top: 50px; padding: 40px 20px; background: var(--secundaria); border-radius: 30px; text-align: center; }
+        .depo-container { display: flex; overflow-x: auto; gap: 20px; padding: 20px 0; }
+        .depo-card { min-width: 250px; background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         footer { padding: 40px; text-align: center; font-size: 0.8em; opacity: 0.7; }
     </style>
 </head>
@@ -41,8 +45,8 @@
 
 <div id="modal-login">
     <div class="login-box">
-        <h3 style="font-family:'Playfair Display'">Acesso Administrativo</h3>
-        <input type="password" id="senha-admin" placeholder="Senha" style="width:80%; padding:15px; border-radius:10px; border:1px solid #ddd; font-size:1.2em; text-align:center;">
+        <h3>Acesso Administrativo</h3>
+        <input type="password" id="senha-admin" placeholder="Senha" style="width:80%; padding:15px; border-radius:10px; border:1px solid #ddd; text-align:center;">
         <button class="btn btn-btc" onclick="verificarSenha()">ENTRAR</button>
         <button style="background:none; border:none; margin-top:10px; cursor:pointer; color:#999" onclick="fecharLogin()">Cancelar</button>
     </div>
@@ -59,7 +63,13 @@
 </header>
 
 <div class="container">
-    <div id="loja" class="secao ativa"><div class="vitrine" id="vitrine"></div></div>
+    <div id="loja" class="secao ativa">
+        <div class="vitrine" id="vitrine"></div>
+        <div class="depoimento-sec">
+            <h3 style="font-family:'Playfair Display'">Vozes do Cuidado</h3>
+            <div class="depo-container" id="lista-depoimentos"></div>
+        </div>
+    </div>
 
     <div id="carrinho" class="secao">
         <div style="max-width:450px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--secundaria);">
@@ -79,37 +89,42 @@
 
     <div id="admin" class="secao">
         <div style="max-width:600px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--primaria);">
-            <h3>Painel V3.0</h3>
+            <h3>Painel V3.1</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
                 <input type="text" id="cfg-pix" placeholder="Chave PIX">
                 <input type="text" id="cfg-btc" placeholder="Wallet BTC">
                 <input type="text" id="cfg-usdt" placeholder="Wallet USDT">
-                <button class="btn btn-btc" onclick="salvarConfig()" style="margin:0">SALVAR</button>
+                <button class="btn btn-btc" onclick="salvarConfig()" style="margin:0">SALVAR WALLETS</button>
             </div>
             <hr>
-            <h4>Novo Produto</h4>
+            <h4 id="form-titulo">Novo Produto</h4>
+            <input type="hidden" id="adm-id">
             <input type="text" id="adm-nome" placeholder="Nome" style="width:94%; margin-bottom:5px;">
             <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; margin-bottom:5px;">
             <input type="text" id="adm-foto" placeholder="Link Foto" style="width:94%; margin-bottom:5px;">
-            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR PRODUTO</button>
+            <button class="btn btn-pix" id="btn-salvar-prod" onclick="salvarProduto()">ADICIONAR/ATUALIZAR</button>
             <hr>
-            <h4>Cupons Ativos</h4>
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
-                <input type="text" id="c-nome" placeholder="CÓDIGO" style="width:40%"><input type="number" id="c-pct" placeholder="%" style="width:20%"><input type="number" id="c-hrs" placeholder="Hrs" style="width:20%"><button onclick="addCupom()" style="width:15%; background:var(--destaque); color:white; border:none; border-radius:5px;">+</button>
-            </div>
+            <h4>Gestão de Depoimentos</h4>
+            <input type="text" id="d-nome" placeholder="Cliente" style="width:94%; margin-bottom:5px;">
+            <textarea id="d-txt" placeholder="Depoimento" style="width:94%; margin-bottom:5px;"></textarea>
+            <button onclick="addDepo()" class="btn btn-btc">ADICIONAR DEPOIMENTO</button>
+            <div id="lista-depo-admin"></div>
+            <hr>
+            <h4>Cupons</h4>
+            <div style="display:flex; gap:5px;"><input type="text" id="c-nome" placeholder="CÓD" style="width:40%"><input type="number" id="c-pct" placeholder="%" style="width:20%"><input type="number" id="c-hrs" placeholder="Hrs" style="width:20%"><button onclick="addCupom()" style="width:15%; background:var(--destaque);">+</button></div>
             <div id="adm-cupons-lista"></div>
             <hr>
-            <h4>Produtos no Inventário</h4>
+            <h4>Produtos Ativos</h4>
             <div id="lista-admin-produtos"></div>
         </div>
     </div>
 </div>
 
-<footer><p>&copy; 2026 Espaço Cura & Cuidado - V3.0 Finalizado</p></footer>
+<footer><p>&copy; 2026 Espaço Cura & Cuidado - V3.1</p></footer>
 
 <script>
     const SEU_TEL = "5585991561497";
-    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], config: { pix:'', btc:'', usdt:'' } };
+    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], depoimentos: [], config: { pix:'', btc:'', usdt:'' } };
     let cart = []; let prices = { btc: 0, usdt: 0 }; let descPct = 0;
 
     async function obterCotacoes() {
@@ -121,9 +136,13 @@
         } catch (e) { console.log("Erro API"); }
     }
 
-    window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') { e.preventDefault(); document.getElementById('modal-login').style.display='flex'; document.getElementById('senha-admin').focus(); } });
-    function fecharLogin() { document.getElementById('modal-login').style.display='none'; document.getElementById('senha-admin').value=''; }
+    window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') { e.preventDefault(); document.getElementById('modal-login').style.display='flex'; } });
+    function fecharLogin() { document.getElementById('modal-login').style.display='none'; }
     function verificarSenha() { if(document.getElementById('senha-admin').value === "Mychell1904") { fecharLogin(); mostrar('admin'); } else { alert("Senha incorreta"); } }
+
+    function save() { localStorage.setItem('cura_v3_db', JSON.stringify(db)); }
+    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
+    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
 
     function addCupom() {
         const n = document.getElementById('c-nome').value.toUpperCase();
@@ -131,18 +150,61 @@
         const h = parseInt(document.getElementById('c-hrs').value) || 24;
         if(n && p) { db.cupons.push({nome:n, pct:p, expiraEm: Date.now()+(h*3600000)}); save(); renderizar(); }
     }
-    function removerCupom(i) { db.cupons.splice(i, 1); save(); renderizar(); }
-    function removerProd(id) { db.produtos = db.produtos.filter(p => p.id !== id); save(); renderizar(); }
 
-    function save() { localStorage.setItem('cura_v3_db', JSON.stringify(db)); }
-    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
-    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
+    function addDepo() {
+        const n = document.getElementById('d-nome').value;
+        const t = document.getElementById('d-txt').value;
+        if(n && t) { db.depoimentos.push({id: Date.now(), nome: n, texto: t}); save(); renderizar(); notify("Depoimento Adicionado!"); }
+    }
+
+    function salvarProduto() {
+        const id = document.getElementById('adm-id').value;
+        const n = document.getElementById('adm-nome').value;
+        const p = parseFloat(document.getElementById('adm-preco').value);
+        const f = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
+        if(n && p) {
+            if(id) { const i = db.produtos.findIndex(x => x.id == id); db.produtos[i] = {id: Number(id), nome:n, preco:p, foto:f}; }
+            else { db.produtos.push({id: Date.now(), nome:n, preco:p, foto:f}); }
+            save(); renderizar(); document.getElementById('adm-id').value = ""; notify("Salvo!");
+        }
+    }
+
+    function editarProd(id) {
+        const p = db.produtos.find(x => x.id == id);
+        document.getElementById('adm-id').value = p.id;
+        document.getElementById('adm-nome').value = p.nome;
+        document.getElementById('adm-preco').value = p.preco;
+        document.getElementById('adm-foto').value = p.foto;
+        document.getElementById('form-titulo').innerText = "Editando: " + p.nome;
+        window.scrollTo(0,0);
+    }
+
+    function gerarPDF(tipo, valor, itens) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const data = new Date();
+        const protocolo = "CURA-" + Math.floor(100000 + Math.random() * 900000);
+        
+        doc.setFontSize(22); doc.setTextColor(166, 138, 120); doc.text("Espaco Cura & Cuidado", 20, 30);
+        doc.setFontSize(12); doc.setTextColor(0, 0, 0);
+        doc.text("COMPROVANTE DE RESERVA", 20, 45);
+        doc.text("--------------------------------------------------", 20, 50);
+        doc.text("Protocolo: " + protocolo, 20, 60);
+        doc.text("Data: " + data.toLocaleDateString('pt-BR'), 20, 70);
+        doc.text("Hora: " + data.toLocaleTimeString('pt-BR'), 20, 80);
+        doc.text("Meio de Pagamento: " + tipo, 20, 90);
+        doc.text("Valor Pago: " + valor, 20, 100);
+        doc.text("Itens:", 20, 115);
+        itens.forEach((it, i) => doc.text("- " + it.nome, 25, 125 + (i * 10)));
+        
+        doc.save(`comprovante-${protocolo}.pdf`);
+        window.open(`https://wa.me/${SEU_TEL}?text=Ola! Realizei o pagamento via ${tipo}. Segue o comprovante (Protocolo: ${protocolo}).`, '_blank');
+    }
 
     function aplicarCupom() {
         const cod = document.getElementById('cupom-input').value.toUpperCase();
         const c = db.cupons.find(x => x.nome === cod);
-        if(c) { descPct = c.pct; document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Desconto de ${c.pct}% aplicado!</span>`; renderizar(); }
-        else { alert("Cupom inválido ou expirado"); }
+        if(c) { descPct = c.pct; document.getElementById('msg-cupom').innerHTML = `Desconto ${c.pct}% OK!`; renderizar(); }
     }
 
     function renderizar() {
@@ -160,34 +222,23 @@
                 </div>
             </div>`).join('');
 
-        document.getElementById('adm-cupons-lista').innerHTML = db.cupons.map((c, i) => {
-            const min = Math.max(0, Math.floor((c.expiraEm - Date.now()) / 60000));
-            return `<div style="display:flex; justify-content:space-between; background:#f4f4f4; padding:5px; margin-bottom:5px; font-size:0.8em; border-radius:5px;">
-                <span><b>${c.nome}</b> (${c.pct}%) - Expira em: ${Math.floor(min/60)}h ${min%60}m</span>
-                <button onclick="removerCupom(${i})" style="border:none; color:red; cursor:pointer; background:none;">✖</button>
-            </div>`; }).join('');
-
+        document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `<div class="depo-card"><p>"${d.texto}"</p><strong>- ${d.nome}</strong></div>`).join('');
+        
         document.getElementById('lista-admin-produtos').innerHTML = db.produtos.map(p => `
-            <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee; font-size:0.85em;">
-                <span>${p.nome} (R$ ${p.preco})</span>
-                <button onclick="removerProd(${p.id})" style="border:none; color:red; cursor:pointer; background:none;">[EXCLUIR]</button>
-            </div>`).join('') || 'Nenhum produto.';
+            <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee; font-size:0.8em">
+                <span>${p.nome}</span>
+                <div><button onclick="editarProd(${p.id})">✏️</button><button onclick="db.produtos=db.produtos.filter(x=>x.id!=${p.id});save();renderizar();">🗑️</button></div>
+            </div>`).join('');
 
         const t = cart.reduce((a, b) => a + b.preco, 0);
         const f = t * (1 - (descPct/100));
-        document.getElementById('total-carrinho').innerHTML = descPct > 0 ? `<small style="text-decoration:line-through; opacity:0.5">R$ ${t.toFixed(2)}</small> R$ ${f.toFixed(2)}` : `R$ ${t.toFixed(2)}`;
+        document.getElementById('total-carrinho').innerText = "R$ " + f.toFixed(2);
         document.getElementById('count').innerText = cart.length;
-        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; font-size:0.9em; padding:3px 0"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
+        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; font-size:0.9em"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
     }
 
-    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado!"); }
+    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Na bolsa!"); }
     function salvarConfig() { db.config.pix = document.getElementById('cfg-pix').value; db.config.btc = document.getElementById('cfg-btc').value; db.config.usdt = document.getElementById('cfg-usdt').value; save(); notify("Configurações Salvas!"); }
-    function salvarProduto() {
-        const n = document.getElementById('adm-nome').value;
-        const p = parseFloat(document.getElementById('adm-preco').value);
-        const f = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
-        if(n && p) { db.produtos.push({id: Date.now(), nome:n, preco:p, foto:f}); save(); renderizar(); notify("Produto Adicionado!"); }
-    }
 
     function abrirCheckout(t) {
         if(cart.length === 0) return;
@@ -196,10 +247,9 @@
         if(t==='PIX'){ v=`R$ ${total.toFixed(2)}`; k=db.config.pix; c='var(--sucesso)'; }
         else if(t==='BTC'){ v=`₿ ${(total/prices.btc).toFixed(8)}`; k=db.config.btc; c='var(--cripto-btc)'; }
         else { v=`₮ ${(total/prices.usdt).toFixed(2)}`; k=db.config.usdt; c='var(--cripto-usdt)'; }
-        document.getElementById('checkout-conteudo').innerHTML = `<h3>Pagar via ${t}</h3><h2 style="color:${c}">${v}</h2><div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; cursor:pointer" onclick="navigator.clipboard.writeText('${k}'); this.innerText='COPIADO!'">${k || 'Sem chave'}</div><button class="btn" style="background:${c}; color:white" onclick="window.open('https://wa.me/${SEU_TEL}?text=Pago ${t} de ${v}')">ENVIAR COMPROVANTE</button><button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
+        document.getElementById('checkout-conteudo').innerHTML = `<h3>Pagar via ${t}</h3><h2 style="color:${c}">${v}</h2><div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; cursor:pointer" onclick="navigator.clipboard.writeText('${k}'); this.innerText='COPIADO!'">${k || 'Sem chave'}</div><button class="btn" style="background:${c}; color:white" onclick="gerarPDF('${t}', '${v}', cart)">ENVIAR COMPROVANTE</button><button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
         document.getElementById('modal-checkout').style.display='flex';
     }
-    setInterval(() => { let m=false; db.cupons=db.cupons.filter(c=>{if(Date.now()>c.expiraEm){m=true; return false;} return true;}); if(m){save(); renderizar();} }, 10000);
     obterCotacoes();
 </script>
 </body>

@@ -133,6 +133,9 @@
 
     function renderizar() {
         const vitrine = document.getElementById('vitrine');
+        const listaAdmin = document.getElementById('lista-admin'); // Nova linha
+        
+        // Renderiza na Vitrine da Loja
         vitrine.innerHTML = db.produtos.map(p => {
             const vBTC = prices.btc > 0 ? (p.preco / prices.btc).toFixed(8) : "...";
             const vUSDT = prices.usdt > 0 ? (p.preco / prices.usdt).toFixed(2) : "...";
@@ -149,13 +152,31 @@
                 </div>
             </div>`;
         }).join('');
+
+        // Renderiza a lista de exclusão no Admin
+        listaAdmin.innerHTML = db.produtos.map(p => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
+                <span>${p.nome} - R$ ${p.preco.toFixed(2)}</span>
+                <button onclick="removerProduto(${p.id})" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold;">[EXCLUIR]</button>
+            </div>
+        `).join('') || '<p style="color:#999">Nenhum produto cadastrado.</p>';
+
         document.getElementById('count').innerText = cart.length;
         document.getElementById('cfg-pix').value = db.config.pix;
         document.getElementById('cfg-btc').value = db.config.btc;
         document.getElementById('cfg-usdt').value = db.config.usdt;
+        
         let total = cart.reduce((acc, i) => acc + i.preco, 0);
         document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
         document.getElementById('total-carrinho').innerText = `R$ ${total.toFixed(2)}`;
+    }
+
+    // Adicione também esta função nova para poder excluir:
+    function removerProduto(id) {
+        db.produtos = db.produtos.filter(p => p.id !== id);
+        localStorage.setItem('cura_v2_db', JSON.stringify(db));
+        renderizar();
+        notify("Produto Removido!");
     }
 
     function abrirCheckout(tipo) {

@@ -147,9 +147,8 @@
                     <div class="precos-cripto">
                         <span class="selo-cripto selo-btc">₿ ${vBTC}</span>
                         <span class="selo-cripto selo-usdt">₮ ${vUSDT}</span>
-                    </div>
-                    <button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button>
-                </div>
+                    <span>${p.nome}</span><div><button onclick="prepararEdicao(${p.id})&quot; style=&quot;color:blue; border:none; background:none; cursor:pointer;&quot;&gt;[ALTERAR]&lt;/button&gt;
+&lt;button onclick=&quot;removerProduto(${p.id})" style="color:red; border:none; background:none; cursor:pointer;">[EXCLUIR]</button></div>
             </div>`;
         }).join('');
 
@@ -157,7 +156,24 @@
         listaAdmin.innerHTML = db.produtos.map(p => `
             <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
                 <span>${p.nome} - R$ ${p.preco.toFixed(2)}</span>
-                <button onclick="removerProduto(${p.id})" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold;">[EXCLUIR]</button>
+               function prepararEdicao(id) {
+        const p = db.produtos.find(prod => prod.id === id);
+        document.getElementById('adm-nome').value = p.nome;
+        document.getElementById('adm-preco').value = p.preco;
+        document.getElementById('adm-foto').value = p.foto;
+        // Removemos o antigo para salvar o novo no mesmo lugar ao clicar em Adicionar
+        db.produtos = db.produtos.filter(prod => prod.id !== id);
+        notify("Dados carregados! Altere e clique em ADICIONAR.");
+    }
+
+    function removerProduto(id) {
+        if(confirm("Deseja excluir este item?")) {
+            db.produtos = db.produtos.filter(p => p.id !== id);
+            localStorage.setItem('cura_v2_db', JSON.stringify(db));
+            renderizar();
+            notify("Removido!");
+        }
+    }
             </div>
         `).join('') || '<p style="color:#999">Nenhum produto cadastrado.</p>';
 

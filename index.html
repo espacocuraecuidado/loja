@@ -16,6 +16,20 @@
             --cripto-btc: #f7931a; 
             --cripto-usdt: #26a17b; 
         }
+        /* MODO ESCURO AUTOMÁTICO */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --fundo: #1a1817;
+                --card: #2a2725;
+                --texto: #e2ddd9;
+                --secundaria: #3d3834;
+            }
+            header, .checkout-box, .politica-box, .produto-card { background: var(--card) !important; border-color: var(--secundaria); }
+        }
+
+        .depoimento-sec { margin-top: 50px; padding: 40px 0; background: var(--secundaria); border-radius: 30px; text-align: center; }
+        .cupom-area { margin: 15px 0; display: flex; gap: 5px; }
+        .cupom-input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); }
         header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--secundaria); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
@@ -71,12 +85,22 @@
 
 <div class="container">
     <div id="loja" class="secao ativa"><div class="vitrine" id="vitrine"></div></div>
+    <div class="depoimento-sec">
+    <h3 style="font-family:'Playfair Display'">O que dizem sobre nós</h3>
+    <div id="lista-depoimentos" style="display:flex; overflow-x:auto; gap:20px; padding:20px;">
+        </div>
+</div>
     
     <div id="carrinho" class="secao">
         <div style="max-width: 450px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 25px; border: 1px solid var(--secundaria);">
             <h3 style="margin-top:0">Finalizar Reserva</h3>
             <div id="lista-carrinho"></div>
             <div id="total-carrinho" style="font-size: 1.6em; color: var(--primaria); text-align: right; font-weight: bold; margin: 20px 0;"></div>
+            <div class="cupom-area">
+    <input type="text" id="cupom-digitado" class="cupom-input" placeholder="Código de Desconto">
+    <button onclick="aplicarCupom()" style="padding:10px; border-radius:8px; background:var(--destaque); color:white; border:none; cursor:pointer;">APLICAR</button>
+</div>
+<div id="msg-cupom" style="font-size:0.8em; margin-bottom:10px;"></div>
             <button class="btn btn-pix" onclick="abrirCheckout('PIX')">PAGAR COM PIX</button>
             <button class="btn btn-btc" onclick="abrirCheckout('BTC')">PAGAR COM BITCOIN</button>
             <button class="btn btn-usdt" onclick="abrirCheckout('USDT')">PAGAR COM USDT</button>
@@ -102,6 +126,18 @@
 
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--secundaria);">
             <h4>Itens Ativos</h4>
+            <hr>
+<h4>Gestão de Cupons</h4>
+<input type="text" id="adm-cupom-nome" placeholder="Código (ex: CURA10)" style="width:60%;">
+<input type="number" id="adm-cupom-pct" placeholder="%" style="width:20%;">
+<button onclick="salvarCupom()">+</button>
+<div id="lista-cupons-admin"></div>
+
+<hr>
+<h4>Gestão de Depoimentos</h4>
+<input type="text" id="adm-depo-nome" placeholder="Nome do Cliente" style="width:94%;">
+<textarea id="adm-depo-txt" placeholder="Depoimento" style="width:94%; margin:10px 0;"></textarea>
+<button onclick="salvarDepoimento()" class="btn btn-btc">ADICIONAR DEPOIMENTO</button>
             <div id="lista-admin"></div>
         </div>
     </div>
@@ -320,6 +356,60 @@
             acessoAdmin();
         }
     });
+    // Novas bases de dados
+    db.cupons = db.cupons || [];
+    db.depoimentos = db.depoimentos || [];
+    let descontoAtivo = 0;
+
+    function aplicarCupom() {
+        const cod = document.getElementById('cupom-digitado').value.toUpperCase();
+        const cupom = db.cupons.find(c => c.nome === cod);
+        if(cupom) {
+            descontoAtivo = cupom.pct;
+            document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Cupom ${cod} aplicado: ${descontoAtivo}% de desconto!</span>`;
+            renderizar();
+        } else {
+            alert("Cupom inválido");
+        }
+    }
+
+    function salvarCupom() {
+        const nome = document.getElementById('adm-cupom-nome').value.toUpperCase();
+        const pct = parseInt(document.getElementById('adm-cupom-pct').value);
+        if(nome && pct) {
+            db.cupons.push({nome, pct});
+            localStorage.setItem('cura_v2_db', JSON.stringify(db));
+            renderizar();
+        }
+    }
+
+    function salvarDepoimento() {
+        const nome = document.getElementById('adm-depo-nome').value;
+        const texto = document.getElementById('adm-depo-txt').value;
+        if(nome && texto) {
+            db.depoimentos.push({id: Date.now(), nome, texto});
+            localStorage.setItem('cura_v2_db', JSON.stringify(db));
+            renderizar();
+            notify("Depoimento Adicionado!");
+        }
+    }
+
+    // Atualize sua função renderizar() para incluir o desconto e os novos itens
+    // Dentro da renderizar(), onde calcula o total, mude para:
+    let totalOriginal = cart.reduce((acc, i) => acc + i.preco, 0);
+    let totalComDesconto = totalOriginal * (1 - (descontoAtivo / 100));
+    
+    document.getElementById('total-carrinho').innerHTML = descontoAtivo > 0 ? 
+        `<small style="text-decoration:line-through; opacity:0.5">R$ ${totalOriginal.toFixed(2)}</small><br>R$ ${totalComDesconto.toFixed(2)}` : 
+        `R$ ${totalOriginal.toFixed(2)}`;
+
+    // Renderizar depoimentos na loja
+    document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `
+        <div style="min-width:250px; background:var(--card); padding:20px; border-radius:20px; box-shadow:0 5px 15px rgba(0,0,0,0.05);">
+            <p style="font-style:italic">"${d.texto}"</p>
+            <strong style="color:var(--primaria)">- ${d.nome}</strong>
+        </div>
+    `).join('');
 </script>
 </body>
 </html>

@@ -75,6 +75,9 @@
     <div id="carrinho" class="secao">
         <div style="max-width:450px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--secundaria);">
             <h3>Sua Bolsa</h3>
+            <div id="contador-reserva" style="background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); border: 1px solid #ffcfcf; box-shadow: 0 4px 15px rgba(217, 83, 79, 0.1); color: #d9534f; letter-spacing: 1px; font-size: 0.9em; text-transform: uppercase; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; display: none;">
+    Sua reserva expira em: <span id="timer-display" style="font-size: 1.2em; font-family: monospace; margin-left: 5px;">05:00</span>
+</div>
             <div id="lista-carrinho"></div>
             <div style="display:flex; gap:10px; margin:20px 0;">
                 <input type="text" id="cupom-input" placeholder="Cupom" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--secundaria);">
@@ -121,6 +124,7 @@
 
     let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], depoimentos: [], pedidos: [], config: { pix:'', btc:'', usdt:'' } };
     let cart = []; let prices = { btc: 600000, usdt: 5.10 }; let descPct = 0;
+    let tempoReserva; let minutosRestantes = 5; let segundosRestantes = 0;
 
     async function obterCotacoes() {
         try {
@@ -152,6 +156,32 @@
             notify("Produto Salvo!");
         }
     }
+    function iniciarTimer() {
+    clearInterval(tempoReserva); // Limpa qualquer contagem anterior
+    minutosRestantes = 5;
+    segundosRestantes = 0;
+
+    tempoReserva = setInterval(() => {
+        if (segundosRestantes === 0) {
+            if (minutosRestantes === 0) {
+                esvaziarBolsaPorTempo();
+                return;
+            }
+            minutosRestantes--;
+            segundosRestantes = 59;
+        } else {
+            segundosRestantes--;
+        }
+        atualizarDisplayTimer();
+    }, 1000);
+}
+
+function esvaziarBolsaPorTempo() {
+    clearInterval(tempoReserva);
+    cart = [];
+    renderizar();
+    notify("Tempo de reserva expirado! A bolsa foi esvaziada.");
+}
 
     function editarProd(id) {
         const p = db.produtos.find(x => x.id == id);
@@ -195,14 +225,14 @@ function removerDepo(id) {
     function removerProd(id) { if(confirm('Excluir?')){ db.produtos = db.produtos.filter(x => x.id != id); save(); renderizar(); } }
 
     function addCart(id) {
-        // CORREÇÃO: Usamos == para aceitar ID como string ou número
-        const item = db.produtos.find(p => p.id == id);
-        if(item) {
-            cart.push(item);
-            renderizar();
-            notify("Adicionado à bolsa!");
-        }
+    const item = db.produtos.find(p => p.id == id);
+    if(item) {
+        cart.push(item);
+        iniciarTimer(); // <--- O "pulo do gato" está aqui: ele reseta o tempo
+        renderizar();
+        notify("Item reservado por 5 minutos!");
     }
+}
 
     function renderizar() {
         // Vitrine: CORREÇÃO: Adicionadas aspas '${p.id}' no onclick
@@ -246,8 +276,21 @@ function removerDepo(id) {
         document.getElementById('total-carrinho').innerText = "Total: R$ " + f.toFixed(2);
         document.getElementById('count').innerText = cart.length;
         document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
+   // CHAMADA DO TIMER DENTRO DA FUNÇÃO
+    atualizarDisplayTimer(); 
+} // CHAVE ÚNICA QUE FECHA A FUNÇÃO RENDERIZAR
+    
+    function atualizarDisplayTimer() {
+    const display = document.getElementById('contador-reserva');
+    const texto = document.getElementById('timer-display');
+    if (cart.length > 0) {
+        display.style.display = 'block';
+        texto.innerText = `${minutosRestantes.toString().padStart(2, '0')}:${segundosRestantes.toString().padStart(2, '0')}`;
+    } else {
+        display.style.display = 'none';
+        clearInterval(tempoReserva);
     }
-
+}    
     function aplicarCupom() {
         const cod = document.getElementById('cupom-input').value.toUpperCase();
         if(cod === "CURA10") { descPct = 10; document.getElementById('msg-cupom').innerHTML = "<span style='color:green'>10% de desconto aplicado!</span>"; renderizar(); }
@@ -296,6 +339,7 @@ function removerDepo(id) {
     }
 
     obterCotacoes();
+    renderizar(); // <--- Adicione esta linha aqui no final de tudo
 </script>
 </body>
 </html>

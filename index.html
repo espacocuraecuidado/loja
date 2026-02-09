@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Cura & Cuidado | V3.2 Estável</title>
+    <title>Espaço Cura & Cuidado | V4.0 Sincronizada</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -11,315 +11,291 @@
         @media (prefers-color-scheme: dark) {
             :root { --fundo: #1a1817; --card: #2a2725; --texto: #e2ddd9; --secundaria: #3d3834; }
             header, .checkout-box, .produto-card, .login-box { background: var(--card) !important; color: var(--texto); }
-            input, textarea { background: #333; color: white; border: 1px solid #444; }
+            input, textarea, select { background: #333; color: white; border: 1px solid #444; }
         }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); transition: 0.3s; }
         header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--secundaria); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        
+        /* TABS / CATEGORIAS */
+        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab-btn { background: none; border: 1px solid var(--primaria); color: var(--primaria); padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.8em; transition: 0.3s; }
+        .tab-btn.active { background: var(--primaria); color: white; }
+
         .vitrine { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; transition: 0.3s; }
-        .produto-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; transition: 0.3s; position: relative; }
         .produto-card img { width: 100%; height: 250px; object-fit: cover; }
         .produto-info { padding: 20px; text-align: center; }
-        .preco-brl { font-size: 1.4em; font-weight: bold; color: var(--primaria); }
-        .precos-cripto { margin: 10px 0; display: flex; justify-content: center; gap: 8px; }
-        .selo-cripto { font-size: 0.7em; font-weight: 600; padding: 3px 8px; border-radius: 50px; }
-        .selo-btc { color: var(--cripto-btc); background: rgba(247, 147, 26, 0.1); }
-        .selo-usdt { color: var(--cripto-usdt); background: rgba(38, 161, 123, 0.1); }
-        #modal-checkout, #modal-login { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .checkout-box, .login-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; max-height: 85vh; overflow-y: auto; }
-        .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); }
-        .btn-pix { background: var(--sucesso); color: white; }
-        .btn-btc { background: var(--cripto-btc); color: white; }
-        .btn-usdt { background: var(--cripto-usdt); color: white; }
+        .estoque-status { font-size: 0.75em; font-weight: bold; margin-bottom: 10px; color: var(--destaque); }
+        .esgotado { color: #d9534f; }
+
         .secao { display: none; } .ativa { display: block; }
         #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 6000; }
-        .depo-card { min-width: 250px; background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-right:15px;}
-        footer { padding: 40px; text-align: center; font-size: 0.8em; opacity: 0.7; }
+        
+        /* ADMIN LISTS */
+        .admin-item { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--secundaria); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
+        .btn-excluir { background: #ffeded; color: #d9534f; border: 1px solid #ffcfcf; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
+
+        #modal-checkout, #modal-login { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .checkout-box, .login-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
+        .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="notificacao"></div>
 
-<div id="modal-login">
-    <div class="login-box">
-        <h3>Acesso Administrativo</h3>
-        <input type="password" id="senha-admin" placeholder="Senha" style="width:80%; padding:15px; border-radius:10px; border:1px solid #ddd; text-align:center;">
-        <button class="btn btn-btc" onclick="verificarSenha()">ENTRAR</button>
-        <button style="background:none; border:none; margin-top:10px; cursor:pointer; color:#999" onclick="fecharLogin()">Cancelar</button>
-    </div>
-</div>
-
-<div id="modal-checkout"><div class="checkout-box" id="checkout-conteudo"></div></div>
-
 <header>
     <div class="logo" onclick="mostrar('loja')">Espaço Cura & Cuidado</div>
     <nav style="margin-top:10px;">
-        <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">LOJA</span>
-        <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">BOLSA (<span id="count">0</span>)</span>
+        <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 10px; font-weight: 600; font-size: 0.8em;">LOJA</span>
+        <span onclick="mostrar('cadastro-cliente')" style="cursor:pointer; margin: 0 10px; font-weight: 600; font-size: 0.8em;">MEU CADASTRO</span>
+        <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 10px; font-weight: 600; font-size: 0.8em;">BOLSA (<span id="count">0</span>)</span>
     </nav>
 </header>
 
 <div class="container">
+    
     <div id="loja" class="secao ativa">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="filtrarCat('Destaques', this)">Destaques</button>
+            <button class="tab-btn" onclick="filtrarCat('Para a mamãe', this)">Para a Mamãe</button>
+            <button class="tab-btn" onclick="filtrarCat('Para o bebê', this)">Para o Bebê</button>
+        </div>
         <div class="vitrine" id="vitrine"></div>
-        <div class="depoimento-sec" style="margin-top:50px; text-align:center;">
-            <h3>Vozes do Cuidado</h3>
-            <div id="lista-depoimentos" style="display:flex; overflow-x:auto; padding:20px 0;"></div>
+        <div id="lista-depoimentos" style="display:flex; overflow-x:auto; padding:40px 0;"></div>
+    </div>
+
+    <div id="cadastro-cliente" class="secao">
+        <div style="max-width:450px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--secundaria);">
+            <h3>Cadastro de Cliente</h3>
+            <input type="text" id="cli-nome" placeholder="Nome Completo" style="width:94%; margin-bottom:10px; padding:12px; border-radius:10px;">
+            <input type="email" id="cli-email" placeholder="E-mail" style="width:94%; margin-bottom:10px; padding:12px; border-radius:10px;">
+            <input type="text" id="cli-tel" placeholder="Telefone" style="width:94%; margin-bottom:10px; padding:12px; border-radius:10px;">
+            <textarea id="cli-end" placeholder="Endereço para entrega" style="width:94%; height:80px; margin-bottom:10px; padding:12px; border-radius:10px;"></textarea>
+            <button class="btn btn-pix" onclick="realizarCadastro()">SALVAR DADOS</button>
         </div>
     </div>
 
     <div id="carrinho" class="secao">
         <div style="max-width:450px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--secundaria);">
             <h3>Sua Bolsa</h3>
-            <div id="contador-reserva" style="background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); border: 1px solid #ffcfcf; box-shadow: 0 4px 15px rgba(217, 83, 79, 0.1); color: #d9534f; letter-spacing: 1px; font-size: 0.9em; text-transform: uppercase; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; display: none;">
-    Sua reserva expira em: <span id="timer-display" style="font-size: 1.2em; font-family: monospace; margin-left: 5px;">05:00</span>
-</div>
-            <div id="lista-carrinho"></div>
-            <div style="display:flex; gap:10px; margin:20px 0;">
-                <input type="text" id="cupom-input" placeholder="Cupom" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--secundaria);">
-                <button onclick="aplicarCupom()" style="background:var(--primaria); color:white; border:none; border-radius:10px; padding:0 15px; cursor:pointer;">OK</button>
+            <div id="contador-reserva" style="background:#fff5f5; color:#d9534f; padding:10px; border-radius:10px; text-align:center; font-weight:bold; margin-bottom:15px; display:none;">
+                Expira em: <span id="timer-display">05:00</span>
             </div>
-            <div id="msg-cupom" style="font-size:0.8em; margin-bottom:10px;"></div>
+            <div id="lista-carrinho"></div>
             <div id="total-carrinho" style="font-size:1.6em; color:var(--primaria); text-align:right; font-weight:bold; margin:20px 0;"></div>
             <button class="btn btn-pix" onclick="abrirCheckout('PIX')">PAGAR COM PIX</button>
-            <button class="btn btn-btc" onclick="abrirCheckout('BTC')">PAGAR COM BITCOIN</button>
+            <button class="btn btn-btc" onclick="abrirCheckout('BTC')">PAGAR COM BTC</button>
             <button class="btn btn-usdt" onclick="abrirCheckout('USDT')">PAGAR COM USDT</button>
         </div>
     </div>
 
     <div id="admin" class="secao">
-        <div style="max-width:600px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--primaria);">
-            <h3>Painel Gestor</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-                <input type="text" id="cfg-pix" placeholder="Chave PIX">
-                <input type="text" id="cfg-btc" placeholder="Wallet BTC">
-                <input type="text" id="cfg-usdt" placeholder="Wallet USDT">
-                <button class="btn btn-btc" onclick="salvarConfig()" style="margin:0">SALVAR CARTEIRAS</button>
+        <div style="max-width:700px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:2px solid var(--primaria);">
+            <h3>Painel Administrativo</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                <input type="text" id="adm-nome" placeholder="Nome do Produto">
+                <input type="number" id="adm-preco" placeholder="Preço R$">
+                <input type="number" id="adm-estoque" placeholder="Qtd em Estoque">
+                <select id="adm-cat">
+                    <option value="Destaques">Destaques</option>
+                    <option value="Para a mamãe">Para a mamãe</option>
+                    <option value="Para o bebê">Para o bebê</option>
+                </select>
+                <input type="text" id="adm-foto" placeholder="Link da Foto" style="grid-column: span 2;">
+                <button class="btn btn-pix" onclick="salvarProduto()" style="grid-column: span 2;">SALVAR NOVO PRODUTO</button>
             </div>
             <hr>
-            <input type="hidden" id="adm-id">
-            <input type="text" id="adm-nome" placeholder="Nome" style="width:94%; margin-bottom:5px;">
-            <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; margin-bottom:5px;">
-            <input type="text" id="adm-foto" placeholder="Link Foto" style="width:94%; margin-bottom:5px;">
-            <button class="btn btn-pix" onclick="salvarProduto()">SALVAR PRODUTO</button>
-            <div id="lista-admin-produtos" style="margin-top:10px;"></div>
-            <h4>Depoimentos</h4>
-<input type="text" id="d-nome" placeholder="Nome do Cliente" style="width:94%; margin-bottom:5px;">
-<textarea id="d-txt" placeholder="Texto do depoimento..." style="width:94%; height:60px; margin-bottom:5px; border-radius:10px; padding:10px;"></textarea>
-<button onclick="addDepoimento()" class="btn btn-btc">PUBLICAR DEPOIMENTO</button>
-<div id="lista-depo-admin"></div>
+            <h4>Gestão de Estoque</h4>
+            <div id="lista-admin-produtos"></div>
+            <hr>
+            <h4>Gestão de Depoimentos</h4>
+            <textarea id="d-txt" placeholder="Texto do depoimento" style="width:94%; height:60px;"></textarea>
+            <input type="text" id="d-nome" placeholder="Nome do Cliente" style="width:94%; margin:5px 0;">
+            <button onclick="addDepoimento()" class="btn btn-btc">ADICIONAR DEPOIMENTO</button>
+            <div id="lista-admin-depoimentos" style="margin-top:15px;"></div>
         </div>
     </div>
 </div>
 
-<footer><p>&copy; 2026 Espaço Cura & Cuidado</p></footer>
-    <script>
+<div id="modal-login"><div class="login-box"><h3>Admin</h3><input type="password" id="senha-admin" placeholder="Senha"><button class="btn btn-btc" onclick="verificarSenha()">ENTRAR</button></div></div>
+<div id="modal-checkout"><div class="checkout-box" id="checkout-conteudo"></div></div>
+
+<script>
     const SEU_TEL = "5585991561497";
-    
-    // LINKS DO GOOGLE SHEETS
-    const URL_PRODUTOS = "https://script.google.com/macros/s/AKfycby8Pcoykpn5fVd-S5RGYSfz9uDzyxqRjGdlk2irm5QVS-08UphErhBDUN2V_KTqhJ--9A/exec";
-    const URL_DEPOIMENTOS = "https://script.google.com/macros/s/AKfycbwXo1KsCuyU52SYf9UmqQB7ORbwGmT16rGM_ZmgkjB5Hr98skdKrS3u20LfLO9HUgqj/exec";
-    const URL_CLIENTES = "https://script.google.com/macros/s/AKfycbxxBL-0UWSgPOhLRQXOeQPNzqRJBYkg-y05cVSGR7WoCRU-0ZL14msrrDjSzkfU_PM4pg/exec";
+    const URL_PRODUTOS = "https://script.google.com/macros/s/AKfycbwIi28C56HG3k4FXzg3fjIx6Fo95TfTOHRosS7IoW7OS4n5EMrQOgEGG_H1j5ObGJ_o2w/exec";
+    const URL_DEPOIMENTOS = "https://script.google.com/macros/s/AKfycbzkdH4s5T8Bduo1A71A3kZs7FZWUHU67Lv3EGRV3bMwR5rHdZnIFvglty-RmjjuTVw/exec";
+    const URL_CLIENTES = "https://script.google.com/macros/s/AKfycbwGenWujBydG91HpHBjRlkHYJ3P0XBdLaGkHN_CAZc8lZ0GpoLZN81IS5BzCgKsH0nSUw/exec";
 
-    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], depoimentos: [], clientes: [], config: { pix:'', btc:'', usdt:'' } };
-    let cart = []; let prices = { btc: 600000, usdt: 5.10 }; let descPct = 0;
-    let tempoReserva; let minutosRestantes = 5; let segundosRestantes = 0;
+    let db = { produtos: [], depoimentos: [], clientes: [], config: { pix:'', btc:'', usdt:'' } };
+    let cart = []; let prices = { btc: 600000, usdt: 5.20 };
+    let catFiltro = 'Destaques';
+    let tempoReserva; let minutos = 5; let segundos = 0;
 
-    // --- SINCRONIZAÇÃO COM A NUVEM ---
     async function carregarDadosSincronizados() {
+        notify("Sincronizando...");
         try {
-            notify("Sincronizando com a nuvem...");
-            const [resProd, resDepo, resCli] = await Promise.all([
-                fetch(URL_PRODUTOS),
-                fetch(URL_DEPOIMENTOS),
-                fetch(URL_CLIENTES)
-            ]);
-
-            db.produtos = await resProd.json();
-            db.depoimentos = await resDepo.json();
-            db.clientes = await resCli.json();
-
-            save();
+            const [rp, rd] = await Promise.all([fetch(URL_PRODUTOS), fetch(URL_DEPOIMENTOS)]);
+            db.produtos = await rp.json();
+            db.depoimentos = await rd.json();
             renderizar();
-            notify("Tudo atualizado!");
-        } catch (e) {
-            console.error("Erro ao sincronizar:", e);
-            renderizar();
-        }
+            notify("Dados Atualizados!");
+        } catch (e) { notify("Erro ao carregar dados."); }
     }
 
-    // --- FUNÇÕES DE SALVAMENTO REMOTO CORRIGIDAS ---
-    async function salvarProduto() {
-        const n = document.getElementById('adm-nome').value;
-        const p = document.getElementById('adm-preco').value;
-        const f = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
-        
-        if(n && p) {
-            notify("Enviando Produto...");
-            try {
-                await fetch(URL_PRODUTOS, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    cache: 'no-cache',
-                    body: JSON.stringify({ nome: n, preco: p, foto: f })
-                });
-                notify("Produto enviado! Atualizando...");
-                document.getElementById('adm-nome').value = "";
-                document.getElementById('adm-preco').value = "";
-                setTimeout(carregarDadosSincronizados, 3000); // Espera 3s para o Google processar
-            } catch(e) { notify("Erro na conexão."); }
-        }
-    }
-
-    async function addDepoimento() {
-        const nome = document.getElementById('d-nome').value;
-        const texto = document.getElementById('d-txt').value;
-        
-        if(nome && texto) {
-            notify("Publicando depoimento...");
-            try {
-                await fetch(URL_DEPOIMENTOS, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    cache: 'no-cache',
-                    body: JSON.stringify({ nome: nome, texto: texto })
-                });
-                notify("Publicado! Atualizando...");
-                document.getElementById('d-txt').value = "";
-                setTimeout(carregarDadosSincronizados, 3000);
-            } catch(e) { notify("Erro ao publicar."); }
-        }
-    }
-
-    // Função para registrar cliente no Google Sheets ao finalizar compra
-    async function registrarCliente(nome, tel) {
-        await fetch(URL_CLIENTES, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ nome: nome, telefone: tel, data: new Date().toLocaleDateString() }) });
-    }
-
-    // --- RESTANTE DAS FUNÇÕES (Ajustadas para o novo DB) ---
-    async function obterCotacoes() {
-        try {
-            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether&vs_currencies=brl');
-            const data = await res.json();
-            prices.btc = data.bitcoin.brl; prices.usdt = data.tether.brl;
-            renderizar();
-        } catch (e) { renderizar(); }
-    }
-
-    window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') { document.getElementById('modal-login').style.display='flex'; } });
-    function fecharLogin() { document.getElementById('modal-login').style.display='none'; }
-    function verificarSenha() { if(document.getElementById('senha-admin').value === "Mychell1904") { fecharLogin(); mostrar('admin'); } else { alert("Senha incorreta"); } }
-    function save() { localStorage.setItem('cura_v3_db', JSON.stringify(db)); }
-    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
-    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2500); }
-
-    function addCart(id) {
-        const item = db.produtos.find(p => p.id == id);
-        if(item) { cart.push(item); iniciarTimer(); renderizar(); notify("Item na bolsa!"); }
+    function filtrarCat(cat, btn) {
+        catFiltro = cat;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderizar();
     }
 
     function renderizar() {
-        // Render Vitrine
-        document.getElementById('vitrine').innerHTML = db.produtos.map(p => `
+        // Vitrine
+        const pFiltrados = db.produtos.filter(p => p.categoria === catFiltro || (catFiltro==='Destaques' && (!p.categoria || p.categoria==='Destaques')));
+        document.getElementById('vitrine').innerHTML = pFiltrados.map(p => `
             <div class="produto-card">
                 <img src="${p.foto}">
                 <div class="produto-info">
+                    <div class="estoque-status ${p.estoque <= 0 ? 'esgotado' : ''}">${p.estoque <= 0 ? 'ESGOTADO' : 'ESTOQUE: '+p.estoque}</div>
                     <h3>${p.nome}</h3>
                     <div class="preco-brl">R$ ${Number(p.preco).toFixed(2)}</div>
-                    <div class="precos-cripto">
-                        <span class="selo-cripto selo-btc">₿ ${(p.preco/prices.btc).toFixed(8)}</span>
-                        <span class="selo-cripto selo-usdt">₮ ${(p.preco/prices.usdt).toFixed(2)}</span>
-                    </div>
-                    <button class="btn" style="background:var(--primaria); color:white" onclick="addCart('${p.id}')">RESERVAR</button>
+                    <button class="btn" style="background:var(--primaria); color:white" onclick="addCart('${p.id}')" ${p.estoque <= 0 ? 'disabled' : ''}>RESERVAR</button>
                 </div>
             </div>`).join('');
 
-        // Render Depoimentos
+        // Depoimentos
         document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `
-            <div class="depo-card"><p>"${d.texto}"</p><strong>- ${d.nome}</strong></div>
-        `).join('');
+            <div style="min-width:250px; background:white; padding:20px; border-radius:20px; margin-right:15px; border:1px solid var(--secundaria);">
+                <p>"${d.texto}"</p><strong>- ${d.nome}</strong>
+            </div>`).join('');
 
-        const t = cart.reduce((a, b) => a + Number(b.preco), 0);
-        const f = t * (1 - (descPct/100));
-        document.getElementById('total-carrinho').innerText = "Total: R$ " + f.toFixed(2);
+        // Admin Produtos
+        document.getElementById('lista-admin-produtos').innerHTML = db.produtos.map(p => `
+            <div class="admin-item">
+                <span><b>${p.nome}</b> | Est: ${p.estoque} | Vend: ${p.vendidos || 0}</span>
+                <button class="btn-excluir" onclick="excluirItem('produto', '${p.id}')">Excluir</button>
+            </div>`).join('');
+
+        // Admin Depoimentos
+        document.getElementById('lista-admin-depoimentos').innerHTML = db.depoimentos.map(d => `
+            <div class="admin-item">
+                <span>"${d.texto.substring(0,20)}..." - ${d.nome}</span>
+                <button class="btn-excluir" onclick="excluirItem('depoimento', '${d.id}')">Excluir</button>
+            </div>`).join('');
+
+        // Bolsa
+        const total = cart.reduce((a, b) => a + Number(b.preco), 0);
         document.getElementById('count').innerText = cart.length;
+        document.getElementById('total-carrinho').innerText = "Total: R$ " + total.toFixed(2);
         document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${i.nome}</span><b>R$ ${Number(i.preco).toFixed(2)}</b></div>`).join('');
-        atualizarDisplayTimer();
     }
 
-    // --- TIMER E PAGAMENTO ---
-    function iniciarTimer() {
-        clearInterval(tempoReserva); minutosRestantes = 5; segundosRestantes = 0;
-        tempoReserva = setInterval(() => {
-            if (segundosRestantes === 0) {
-                if (minutosRestantes === 0) { esvaziarBolsaPorTempo(); return; }
-                minutosRestantes--; segundosRestantes = 59;
-            } else { segundosRestantes--; }
-            atualizarDisplayTimer();
-        }, 1000);
+    async function salvarProduto() {
+        const dados = {
+            nome: document.getElementById('adm-nome').value,
+            preco: document.getElementById('adm-preco').value,
+            estoque: document.getElementById('adm-estoque').value,
+            categoria: document.getElementById('adm-cat').value,
+            foto: document.getElementById('adm-foto').value,
+            vendidos: 0
+        };
+        notify("Enviando...");
+        await fetch(URL_PRODUTOS, { method: 'POST', mode: 'no-cors', body: JSON.stringify(dados) });
+        setTimeout(carregarDadosSincronizados, 2000);
     }
 
-    function atualizarDisplayTimer() {
-        const display = document.getElementById('contador-reserva');
-        const texto = document.getElementById('timer-display');
-        if (cart.length > 0) { display.style.display = 'block'; texto.innerText = `${minutosRestantes.toString().padStart(2, '0')}:${segundosRestantes.toString().padStart(2, '0')}`; }
-        else { display.style.display = 'none'; clearInterval(tempoReserva); }
+    async function addDepoimento() {
+        const dados = {
+            nome: document.getElementById('d-nome').value,
+            texto: document.getElementById('d-txt').value,
+            data: new Date().toLocaleDateString()
+        };
+        await fetch(URL_DEPOIMENTOS, { method: 'POST', mode: 'no-cors', body: JSON.stringify(dados) });
+        setTimeout(carregarDadosSincronizados, 2000);
     }
 
-    function esvaziarBolsaPorTempo() { clearInterval(tempoReserva); cart = []; renderizar(); notify("Tempo expirado!"); }
-
-    function abrirCheckout(t) {
-        if(cart.length === 0) return alert("Bolsa vazia");
-        const total = cart.reduce((a, b) => a + Number(b.preco), 0) * (1 - (descPct/100));
-        let v, k, c;
-        if(t==='PIX'){ v=`R$ ${total.toFixed(2)}`; k=db.config.pix; c='var(--sucesso)'; }
-        else if(t==='BTC'){ v=`₿ ${(total/prices.btc).toFixed(8)}`; k=db.config.btc; c='var(--cripto-btc)'; }
-        else { v=`₮ ${(total/prices.usdt).toFixed(2)}`; k=db.config.usdt; c='var(--cripto-usdt)'; }
-        
-        document.getElementById('checkout-conteudo').innerHTML = `
-            <h3>Pagar via ${t}</h3>
-            <h2 style="color:${c}">${v}</h2>
-            <div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; cursor:pointer" onclick="navigator.clipboard.writeText('${k}'); notify('Copiado!')">${k || 'Chave não configurada'}</div>
-            <input type="text" id="nome-cliente" placeholder="Seu Nome" style="width:80%; padding:10px; margin-top:15px; border-radius:10px; border:1px solid #ddd;">
-            <button class="btn" style="background:${c}; color:white" onclick="finalizar('${t}', '${v}')">GERAR COMPROVANTE</button>
-            <button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
-        document.getElementById('modal-checkout').style.display='flex';
-    }
-
-    async function finalizar(tipo, valor) {
-        const nomeCli = document.getElementById('nome-cliente').value;
-        if(!nomeCli) return alert("Por favor, digite seu nome");
-
-        const protocolo = "CURA-" + Math.floor(1000 + Math.random() * 9000);
-        registrarCliente(nomeCli, "Via Checkout"); // Salva o cliente na planilha!
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("Reserva Espaco Cura & Cuidado", 20, 20);
-        doc.text("Cliente: " + nomeCli, 20, 30);
-        doc.text("Protocolo: " + protocolo, 20, 40);
-        doc.text("Valor: " + valor, 20, 50);
-        doc.save(`reserva-${protocolo}.pdf`);
-
-        window.open(`https://wa.me/${SEU_TEL}?text=Ola! Me chamo ${nomeCli}. Fiz uma reserva via ${tipo}. Protocolo: ${protocolo}`, '_blank');
-        cart = []; renderizar();
-        document.getElementById('modal-checkout').style.display='none';
+    async function realizarCadastro() {
+        const dados = {
+            nome: document.getElementById('cli-nome').value,
+            email: document.getElementById('cli-email').value,
+            telefone: document.getElementById('cli-tel').value,
+            endereco: document.getElementById('cli-end').value,
+            data: new Date().toLocaleDateString()
+        };
+        notify("Salvando Cadastro...");
+        await fetch(URL_CLIENTES, { method: 'POST', mode: 'no-cors', body: JSON.stringify(dados) });
+        notify("Cadastro Concluído!");
         mostrar('loja');
     }
 
-    function salvarConfig() { 
-        db.config.pix = document.getElementById('cfg-pix').value; 
-        db.config.btc = document.getElementById('cfg-btc').value; 
-        db.config.usdt = document.getElementById('cfg-usdt').value; 
-        save(); notify("Carteiras Salvas!"); 
+    async function excluirItem(tipo, id) {
+        if(!confirm("Excluir permanentemente?")) return;
+        const url = tipo === 'produto' ? URL_PRODUTOS : URL_DEPOIMENTOS;
+        await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'DELETE', id: id }) });
+        setTimeout(carregarDadosSincronizados, 2000);
     }
 
-    // INICIALIZAÇÃO
-    obterCotacoes();
+    function addCart(id) {
+        const p = db.produtos.find(x => x.id == id);
+        if(p && p.estoque > 0) { cart.push(p); iniciarTimer(); renderizar(); notify("Adicionado!"); }
+    }
+
+    function iniciarTimer() {
+        clearInterval(tempoReserva); minutos = 5; segundos = 0;
+        document.getElementById('contador-reserva').style.display = 'block';
+        tempoReserva = setInterval(() => {
+            if (segundos === 0) { if (minutos === 0) { esvaziarBolsa(); return; } minutos--; segundos = 59; } 
+            else { segundos--; }
+            document.getElementById('timer-display').innerText = `${minutos.toString().padStart(2,'0')}:${segundos.toString().padStart(2,'0')}`;
+        }, 1000);
+    }
+
+    function esvaziarBolsa() { cart = []; renderizar(); document.getElementById('contador-reserva').style.display = 'none'; }
+
+    function abrirCheckout(tipo) {
+        if(cart.length === 0) return;
+        const total = cart.reduce((a, b) => a + Number(b.preco), 0);
+        const valorCripto = tipo === 'BTC' ? (total/prices.btc).toFixed(8) : (total/prices.usdt).toFixed(2);
+        const label = tipo === 'PIX' ? `R$ ${total.toFixed(2)}` : `${tipo} ${valorCripto}`;
+        
+        document.getElementById('checkout-conteudo').innerHTML = `
+            <h3>Pagamento ${tipo}</h3>
+            <h2 style="color:var(--primaria)">${label}</h2>
+            <input type="text" id="checkout-nome" placeholder="Seu Nome para o PDF" style="width:80%; padding:10px; margin-bottom:10px;">
+            <button class="btn btn-pix" onclick="finalizarCompra('${tipo}', '${label}')">GERAR COMPROVANTE</button>
+            <button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">CANCELAR</button>`;
+        document.getElementById('modal-checkout').style.display = 'flex';
+    }
+
+    function finalizarCompra(tipo, valor) {
+        const nome = document.getElementById('checkout-nome').value || "Cliente";
+        const protocolo = "CURA-" + Math.floor(1000 + Math.random() * 9000);
+        const data = new Date().toLocaleDateString();
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("Espaço Cura & Cuidado - Reserva", 20, 20);
+        doc.text(`Data: ${data}`, 20, 30);
+        doc.text(`Protocolo: ${protocolo}`, 20, 40);
+        doc.text(`Cliente: ${nome}`, 20, 50);
+        doc.text(`Valor: ${valor}`, 20, 60);
+        doc.text("Itens:", 20, 70);
+        cart.forEach((it, idx) => doc.text(`- ${it.nome}`, 20, 80 + (idx*10)));
+        doc.save(`reserva-${protocolo}.pdf`);
+
+        window.open(`https://wa.me/${SEU_TEL}?text=Ola! Me chamo ${nome}. Protocolo: ${protocolo}. Valor: ${valor}`, '_blank');
+        esvaziarBolsa();
+        document.getElementById('modal-checkout').style.display = 'none';
+    }
+
+    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
+    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(()=>n.style.display='none', 3000); }
+    window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') document.getElementById('modal-login').style.display='flex'; });
+    function verificarSenha() { if(document.getElementById('senha-admin').value === "Mychell1904") { document.getElementById('modal-login').style.display='none'; mostrar('admin'); } }
+
     carregarDadosSincronizados();
 </script>
 </body>

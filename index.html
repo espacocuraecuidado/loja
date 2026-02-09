@@ -3,72 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Cura & Cuidado | Versão 3.0</title>
+    <title>Espaço Cura & Cuidado | V3.0 PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primaria: #a68a78;
-            --secundaria: #ece5df; 
-            --destaque: #8ca68e; 
-            --texto: #5a5552; 
-            --fundo: #f9f7f2; 
-            --card: #ffffff;
-            --sucesso: #25D366; 
-            --cripto-btc: #f7931a; 
-            --cripto-usdt: #26a17b; 
-        }
-
-        /* MODO ESCURO AUTOMÁTICO (V3.0) */
+        :root { --primaria: #a68a78; --secundaria: #ece5df; --destaque: #8ca68e; --texto: #5a5552; --fundo: #f9f7f2; --card: #ffffff; --sucesso: #25D366; --cripto-btc: #f7931a; --cripto-usdt: #26a17b; }
         @media (prefers-color-scheme: dark) {
-            :root {
-                --fundo: #1a1817;
-                --card: #2a2725;
-                --texto: #e2ddd9;
-                --secundaria: #3d3834;
-            }
-            header, .checkout-box, .politica-box, .produto-card, .depo-card { background: var(--card) !important; border-color: var(--secundaria); }
-            input, textarea { background: #333; color: white; border: 1px solid var(--secundaria); }
+            :root { --fundo: #1a1817; --card: #2a2725; --texto: #e2ddd9; --secundaria: #3d3834; }
+            header, .checkout-box, .politica-box, .produto-card, .depo-card, .login-box { background: var(--card) !important; color: var(--texto); }
+            input, textarea { background: #333; color: white; border: 1px solid #444; }
         }
-
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); transition: 0.3s; }
         header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--secundaria); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
         .vitrine { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
-        .carrossel img { width: 100%; height: 250px; object-fit: cover; }  
-        
+        .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; transition: 0.3s; }
+        .produto-card img { width: 100%; height: 250px; object-fit: cover; }
         .produto-info { padding: 20px; text-align: center; }
         .preco-brl { font-size: 1.4em; font-weight: bold; color: var(--primaria); }
-        .precos-cripto { margin-top: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .selo-cripto { font-size: 0.75em; font-weight: 600; padding: 3px 10px; border-radius: 50px; }
+        .precos-cripto { margin: 10px 0; display: flex; justify-content: center; gap: 8px; }
+        .selo-cripto { font-size: 0.7em; font-weight: 600; padding: 3px 8px; border-radius: 50px; }
         .selo-btc { color: var(--cripto-btc); background: rgba(247, 147, 26, 0.1); }
         .selo-usdt { color: var(--cripto-usdt); background: rgba(38, 161, 123, 0.1); }
-
-        #modal-checkout, .modal-politica { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .checkout-box, .politica-box { background: white; width: 90%; max-width: 500px; padding: 30px; border-radius: 25px; text-align: center; max-height: 85vh; overflow-y: auto; }
+        
+        /* MODAIS E LOGIN */
+        #modal-checkout, .modal-politica, #modal-login { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .checkout-box, .politica-box, .login-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
         
         .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-pix { background: var(--sucesso); color: white; }
         .btn-btc { background: var(--cripto-btc); color: white; }
         .btn-usdt { background: var(--cripto-usdt); color: white; }
         
-        /* SEÇÃO DEPOIMENTOS */
-        .depoimento-sec { margin-top: 60px; padding: 40px 20px; background: var(--secundaria); border-radius: 30px; text-align: center; }
-        .depo-container { display: flex; overflow-x: auto; gap: 20px; padding: 20px 0; scroll-snap-type: x mandatory; }
-        .depo-card { min-width: 280px; background: white; padding: 25px; border-radius: 20px; scroll-snap-align: start; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-
-        .cupom-box { display: flex; gap: 10px; margin: 20px 0; }
         .secao { display: none; } .ativa { display: block; }
-        #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 4000; }
-        footer { margin-top: 50px; padding: 30px; text-align: center; font-size: 0.8em; opacity: 0.7; }
+        #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 6000; }
+        
+        .depoimento-sec { margin-top: 50px; padding: 40px 20px; background: var(--secundaria); border-radius: 30px; text-align: center; }
+        .depo-container { display: flex; overflow-x: auto; gap: 20px; padding: 20px 0; }
+        .depo-card { min-width: 250px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        footer { padding: 40px; text-align: center; font-size: 0.8em; opacity: 0.7; }
     </style>
 </head>
 <body>
 
 <div id="notificacao"></div>
+
+<div id="modal-login">
+    <div class="login-box">
+        <h3 style="font-family:'Playfair Display'">Acesso Administrativo</h3>
+        <input type="password" id="senha-admin" placeholder="Senha" style="width:80%; padding:15px; border-radius:10px; border:1px solid #ddd; font-size:1.2em; text-align:center;">
+        <button class="btn btn-btc" onclick="verificarSenha()">ENTRAR</button>
+        <button style="background:none; border:none; margin-top:10px; cursor:pointer; color:#999" onclick="fecharLogin()">Cancelar</button>
+    </div>
+</div>
+
 <div id="modal-checkout"><div class="checkout-box" id="checkout-conteudo"></div></div>
-<div id="modal-politica" class="modal-politica"><div class="politica-box"><h3 id="p-titulo"></h3><div id="p-texto" style="text-align:left; font-size:0.9em; line-height:1.6;"></div><button class="btn" onclick="fecharPolitica()">FECHAR</button></div></div>
 
 <header>
     <div class="logo" onclick="mostrar('loja')">Espaço Cura & Cuidado</div>
@@ -82,23 +71,21 @@
     <div id="loja" class="secao ativa">
         <div class="vitrine" id="vitrine"></div>
         <div class="depoimento-sec">
-            <h3 style="font-family:'Playfair Display'; font-size:1.8em;">Vozes do Cuidado</h3>
+            <h3 style="font-family:'Playfair Display'">Vozes do Cuidado</h3>
             <div class="depo-container" id="lista-depoimentos"></div>
         </div>
     </div>
-    
+
     <div id="carrinho" class="secao">
-        <div style="max-width: 450px; margin: 0 auto; background: var(--card); padding: 30px; border-radius: 25px; border: 1px solid var(--secundaria);">
+        <div style="max-width:450px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--secundaria);">
             <h3>Sua Bolsa</h3>
             <div id="lista-carrinho"></div>
-            
-            <div class="cupom-box">
+            <div style="display:flex; gap:10px; margin:20px 0;">
                 <input type="text" id="cupom-input" placeholder="Cupom" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--secundaria);">
-                <button onclick="aplicarCupom()" style="background:var(--primaria); color:white; border:none; border-radius:10px; padding:0 15px; cursor:pointer;">OK</button>
+                <button onclick="aplicarCupom()" style="background:var(--primaria); color:white; border:none; border-radius:10px; padding:0 15px; cursor:pointer;">APLICAR</button>
             </div>
             <div id="msg-cupom" style="font-size:0.8em; margin-bottom:10px;"></div>
-
-            <div id="total-carrinho" style="font-size: 1.6em; color: var(--primaria); text-align: right; font-weight: bold; margin: 20px 0;"></div>
+            <div id="total-carrinho" style="font-size:1.6em; color:var(--primaria); text-align:right; font-weight:bold; margin:20px 0;"></div>
             <button class="btn btn-pix" onclick="abrirCheckout('PIX')">PAGAR COM PIX</button>
             <button class="btn btn-btc" onclick="abrirCheckout('BTC')">PAGAR COM BITCOIN</button>
             <button class="btn btn-usdt" onclick="abrirCheckout('USDT')">PAGAR COM USDT</button>
@@ -106,43 +93,45 @@
     </div>
 
     <div id="admin" class="secao">
-        <div style="max-width: 600px; margin: 0 auto; background: var(--card); padding: 30px; border-radius: 25px; border: 1px solid var(--primaria);">
-            <h3>Painel 3.0</h3>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div style="max-width:600px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--primaria);">
+            <h3>Painel V3.0</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <input type="text" id="cfg-pix" placeholder="Chave PIX">
                 <input type="text" id="cfg-btc" placeholder="Wallet BTC">
                 <input type="text" id="cfg-usdt" placeholder="Wallet USDT">
-                <button class="btn btn-btc" onclick="salvarConfig()" style="margin:0">SALVAR WALLETS</button>
+                <button class="btn btn-btc" onclick="salvarConfig()" style="margin:0">SALVAR</button>
             </div>
-            <hr style="margin:25px 0">
-            <input type="hidden" id="adm-id">
-            <input type="text" id="adm-nome" placeholder="Produto" style="width:94%; margin-bottom:10px; padding:10px;">
-            <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; margin-bottom:10px; padding:10px;">
-            <input type="text" id="adm-foto" placeholder="Link Foto" style="width:94%; margin-bottom:10px; padding:10px;">
-            <button class="btn btn-pix" id="btn-salvar-prod" onclick="salvarProduto()">SALVAR PRODUTO</button>
+            <hr>
+            <h4>Novo Produto</h4>
+            <input type="text" id="adm-nome" placeholder="Produto" style="width:94%; margin-bottom:5px;">
+            <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; margin-bottom:5px;">
+            <input type="text" id="adm-foto" placeholder="Link Foto" style="width:94%; margin-bottom:5px;">
+            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR</button>
             
             <hr>
-            <h4>Cupons: <input type="text" id="c-nome" placeholder="NOME" style="width:80px;"> <input type="number" id="c-pct" placeholder="%" style="width:50px;"> <button onclick="addCupom()">+</button></h4>
+            <h4>Cupons com Expiração</h4>
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" id="c-nome" placeholder="CÓDIGO" style="width:40%">
+                <input type="number" id="c-pct" placeholder="%" style="width:20%">
+                <input type="number" id="c-hrs" placeholder="Hrs" style="width:20%">
+                <button onclick="addCupom()" style="width:20%; background:var(--destaque); color:white; border:none; border-radius:5px;">+</button>
+            </div>
             <div id="adm-cupons-lista"></div>
-            
+
             <hr>
-            <h4>Depoimentos: <input type="text" id="d-nome" placeholder="Cliente" style="width:94%;"><textarea id="d-txt" placeholder="Texto" style="width:94%; margin-top:5px;"></textarea><button onclick="addDepo()" class="btn btn-btc">ADD DEPOIMENTO</button></h4>
-            
-            <hr>
-            <h4>Inventário</h4>
+            <h4>Itens e Depoimentos</h4>
             <div id="lista-admin"></div>
         </div>
     </div>
 </div>
 
 <footer>
-    <span onclick="abrirPol('s')">Segurança</span> | <span onclick="abrirPol('d')">Trocas</span>
     <p>&copy; 2026 Espaço Cura & Cuidado - V3.0</p>
 </footer>
 
 <script>
-    const SEU_TEL = "5585991561497"; 
-    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], depoimentos: [], config: { pix: '', btc: '', usdt: '' } };
+    const SEU_TEL = "5585991561497";
+    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], depoimentos: [], config: { pix:'', btc:'', usdt:'' } };
     let cart = []; let prices = { btc: 0, usdt: 0 }; let descPct = 0;
 
     async function obterCotacoes() {
@@ -154,97 +143,112 @@
         } catch (e) { console.log("Erro API"); }
     }
 
+    // ATALHO E LOGIN
+    window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') { e.preventDefault(); document.getElementById('modal-login').style.display='flex'; document.getElementById('senha-admin').focus(); } });
+    function fecharLogin() { document.getElementById('modal-login').style.display='none'; document.getElementById('senha-admin').value=''; }
+    function verificarSenha() {
+        if(document.getElementById('senha-admin').value === "Mychell1904") { fecharLogin(); mostrar('admin'); }
+        else { alert("Senha incorreta"); }
+    }
+
+    // CUPONS COM TIMER
+    function addCupom() {
+        const nome = document.getElementById('c-nome').value.toUpperCase();
+        const pct = parseInt(document.getElementById('c-pct').value);
+        const hrs = parseInt(document.getElementById('c-hrs').value) || 24;
+        if(nome && pct) {
+            const expiraEm = Date.now() + (hrs * 60 * 60 * 1000);
+            db.cupons.push({nome, pct, expiraEm});
+            save(); renderizar(); notify("Cupom Criado!");
+        }
+    }
+    function removerCupom(idx) { db.cupons.splice(idx, 1); save(); renderizar(); }
+
+    function checarExpira() {
+        const agora = Date.now();
+        let mudou = false;
+        db.cupons = db.cupons.filter(c => {
+            if(agora > c.expiraEm) { mudou = true; return false; }
+            return true;
+        });
+        if(mudou) { save(); renderizar(); }
+    }
+    setInterval(checarExpira, 1000);
+
+    // FUNÇÕES CORE
+    function save() { localStorage.setItem('cura_v3_db', JSON.stringify(db)); }
+    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
+    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
+    
+    function aplicarCupom() {
+        const cod = document.getElementById('cupom-input').value.toUpperCase();
+        const c = db.cupons.find(x => x.nome === cod);
+        if(c) { descPct = c.pct; document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Cupom Ativo: ${c.pct}%</span>`; renderizar(); }
+        else { alert("Cupom inválido ou expirado"); }
+    }
+
+    function renderizar() {
+        // Vitrine
+        document.getElementById('vitrine').innerHTML = db.produtos.map(p => `
+            <div class="produto-card">
+                <img src="${p.foto}">
+                <div class="produto-info">
+                    <h3>${p.nome}</h3>
+                    <div class="preco-brl">R$ ${p.preco.toFixed(2)}</div>
+                    <div class="precos-cripto">
+                        <span class="selo-cripto selo-btc">₿ ${(p.preco/prices.btc).toFixed(8)}</span>
+                        <span class="selo-cripto selo-usdt">₮ ${(p.preco/prices.usdt).toFixed(2)}</span>
+                    </div>
+                    <button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button>
+                </div>
+            </div>
+        `).join('');
+
+        // Cupons Admin
+        document.getElementById('adm-cupons-lista').innerHTML = db.cupons.map((c, i) => {
+            const m = Math.max(0, Math.floor((c.expiraEm - Date.now()) / 60000));
+            return `<div style="display:flex; justify-content:space-between; background:var(--secundaria); padding:8px; border-radius:8px; margin-bottom:5px; font-size:0.8em">
+                <span><b>${c.nome}</b> (${c.pct}%) - Expira em: ${Math.floor(m/60)}h ${m%60}m</span>
+                <button onclick="removerCupom(${i})" style="border:none; color:red; cursor:pointer; background:none; font-weight:bold">✖</button>
+            </div>`;
+        }).join('');
+
+        // Carrinho
+        const total = cart.reduce((a, b) => a + b.preco, 0);
+        const final = total * (1 - (descPct/100));
+        document.getElementById('total-carrinho').innerHTML = descPct > 0 ? `<small style="text-decoration:line-through; opacity:0.5">R$ ${total.toFixed(2)}</small> R$ ${final.toFixed(2)}` : `R$ ${total.toFixed(2)}`;
+        document.getElementById('count').innerText = cart.length;
+        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px 0"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
+    }
+
+    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado!"); }
+    
     function salvarConfig() {
         db.config.pix = document.getElementById('cfg-pix').value;
         db.config.btc = document.getElementById('cfg-btc').value;
         db.config.usdt = document.getElementById('cfg-usdt').value;
-        localStorage.setItem('cura_v3_db', JSON.stringify(db));
-        notify("Configurações Salvas!");
+        save(); notify("Salvo!");
     }
 
     function salvarProduto() {
-        const id = document.getElementById('adm-id').value;
         const nome = document.getElementById('adm-nome').value;
         const preco = parseFloat(document.getElementById('adm-preco').value);
         const foto = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
-        if(!nome || !preco) return;
-        if(id) { const i = db.produtos.findIndex(p => p.id == id); db.produtos[i] = {id: Number(id), nome, preco, foto}; }
-        else { db.produtos.push({id: Date.now(), nome, preco, foto}); }
-        localStorage.setItem('cura_v3_db', JSON.stringify(db));
-        limpar(); renderizar(); notify("Produto Atualizado!");
-    }
-
-    function addCupom() {
-        const nome = document.getElementById('c-nome').value.toUpperCase();
-        const pct = parseInt(document.getElementById('c-pct').value);
-        if(nome && pct) { db.cupons.push({nome, pct}); localStorage.setItem('cura_v3_db', JSON.stringify(db)); renderizar(); }
-    }
-
-    function addDepo() {
-        const nome = document.getElementById('d-nome').value;
-        const texto = document.getElementById('d-txt').value;
-        if(nome && texto) { db.depoimentos.push({nome, texto}); localStorage.setItem('cura_v3_db', JSON.stringify(db)); renderizar(); notify("Depoimento OK!"); }
-    }
-
-    function aplicarCupom() {
-        const cod = document.getElementById('cupom-input').value.toUpperCase();
-        const c = db.cupons.find(x => x.nome === cod);
-        if(c) { descPct = c.pct; document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Cupom ${cod} (${c.pct}%) Ativo!</span>`; renderizar(); }
-        else { alert("Cupom não encontrado"); }
-    }
-
-    function renderizar() {
-        document.getElementById('vitrine').innerHTML = db.produtos.map(p => {
-            const b = (p.preco / prices.btc).toFixed(8); const u = (p.preco / prices.usdt).toFixed(2);
-            return `<div class="produto-card"><div class="carrossel"><img src="${p.foto}"></div><div class="produto-info"><h3>${p.nome}</h3><div class="preco-brl">R$ ${p.preco.toFixed(2)}</div><div class="precos-cripto"><span class="selo-cripto selo-btc">₿ ${b}</span><span class="selo-cripto selo-usdt">₮ ${u}</span></div><button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button></div></div>`;
-        }).join('');
-
-        document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `<div class="depo-card"><p style="font-style:italic">"${d.texto}"</p><strong>- ${d.nome}</strong></div>`).join('');
-
-        document.getElementById('lista-admin').innerHTML = db.produtos.map(p => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;"><span>${p.nome}</span><div><button onclick="preparar(${p.id})">✏️</button><button onclick="remover(${p.id})">🗑️</button></div></div>`).join('');
-        
-        const total = cart.reduce((a, b) => a + b.preco, 0);
-        const final = total * (1 - (descPct/100));
-        document.getElementById('total-carrinho').innerHTML = descPct > 0 ? `<small style="text-decoration:line-through">R$ ${total.toFixed(2)}</small> R$ ${final.toFixed(2)}` : `R$ ${total.toFixed(2)}`;
-        document.getElementById('count').innerText = cart.length;
-        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; font-size:0.9em;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
-    }
-
-    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Na bolsa!"); }
-    function preparar(id) { const p = db.produtos.find(x => x.id === id); document.getElementById('adm-id').value = p.id; document.getElementById('adm-nome').value = p.nome; document.getElementById('adm-preco').value = p.preco; document.getElementById('adm-foto').value = p.foto; document.getElementById('btn-salvar-prod').innerText = "ATUALIZAR"; window.scrollTo(0,0); }
-    function remover(id) { db.produtos = db.produtos.filter(p => p.id !== id); localStorage.setItem('cura_v3_db', JSON.stringify(db)); renderizar(); }
-    function limpar() { document.getElementById('adm-id').value=""; document.getElementById('adm-nome').value=""; document.getElementById('adm-preco').value=""; document.getElementById('adm-foto').value=""; document.getElementById('btn-salvar-prod').innerText = "SALVAR PRODUTO"; }
-
-    // ATALHO SECRETO V3.0 (Shift + Alt + A)
-    window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') { e.preventDefault(); acessoAdmin(); } });
-
-    function acessoAdmin() {
-        const pass = prompt("Senha de Acesso:");
-        if(pass === "Mychell1904") { mostrar('admin'); } else { alert("Acesso Negado"); }
+        if(nome && preco) { db.produtos.push({id: Date.now(), nome, preco, foto}); save(); renderizar(); notify("Produto OK!"); }
     }
 
     function abrirCheckout(t) {
-        const modal = document.getElementById('modal-checkout');
+        if(cart.length === 0) return;
         const total = cart.reduce((a, b) => a + b.preco, 0) * (1 - (descPct/100));
-        let v, c, k; 
-        if(t === 'PIX') { v = `R$ ${total.toFixed(2)}`; k = db.config.pix; c = 'var(--sucesso)'; }
-        else if(t === 'BTC') { v = `₿ ${(total/prices.btc).toFixed(8)} BTC`; k = db.config.btc; c = 'var(--cripto-btc)'; }
-        else { v = `₮ ${(total/prices.usdt).toFixed(2)} USDT`; k = db.config.usdt; c = 'var(--cripto-usdt)'; }
+        let v, k, c;
+        if(t==='PIX'){ v=`R$ ${total.toFixed(2)}`; k=db.config.pix; c='var(--sucesso)'; }
+        else if(t==='BTC'){ v=`₿ ${(total/prices.btc).toFixed(8)}`; k=db.config.btc; c='var(--cripto-btc)'; }
+        else { v=`₮ ${(total/prices.usdt).toFixed(2)}`; k=db.config.usdt; c='var(--cripto-usdt)'; }
         
-        document.getElementById('checkout-conteudo').innerHTML = `<h3>Pagar ${t}</h3><h2 style="color:${c}">${v}</h2><div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; font-family:monospace; cursor:pointer;" onclick="copiar('${k}', this)">${k || 'Não cadastrada'}</div><button class="btn" style="background:${c}; color:white" onclick="window.open('https://wa.me/${SEU_TEL}?text=Pago ${t} de ${v}')">ENVIAR COMPROVANTE</button><button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
-        modal.style.display = 'flex';
+        document.getElementById('checkout-conteudo').innerHTML = `<h3>Pagar via ${t}</h3><h2 style="color:${c}">${v}</h2><div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; cursor:pointer" onclick="navigator.clipboard.writeText('${k}'); this.innerText='COPIADO!'">${k || 'Sem chave'}</div><button class="btn" style="background:${c}; color:white" onclick="window.open('https://wa.me/${SEU_TEL}?text=Pago ${t} de ${v}')">ENVIAR COMPROVANTE</button><button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
+        document.getElementById('modal-checkout').style.display='flex';
     }
 
-    function copiar(t, el) { navigator.clipboard.writeText(t); el.innerText = "Copiado!"; setTimeout(() => renderizar(), 1000); }
-    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
-    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
-    function abrirPol(t) { 
-        const m = document.getElementById('modal-politica');
-        document.getElementById('p-titulo').innerText = t === 's' ? "Segurança" : "Devolução";
-        document.getElementById('p-texto').innerHTML = t === 's' ? "Site protegido com P2P e SSL. Não guardamos dados bancários." : "Devolução em 7 dias. Frete reverso via Correios.";
-        m.style.display = 'flex';
-    }
-    function fecharPolitica() { document.getElementById('modal-politica').style.display = 'none'; }
     obterCotacoes();
 </script>
 </body>

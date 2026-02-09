@@ -64,10 +64,9 @@
 <header>
     <div class="logo" onclick="mostrar('loja')">Espaço Cura & Cuidado</div>
     <nav style="margin-top:10px;">
-        <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">LOJA</span>
-        <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">BOLSA (<span id="count">0</span>)</span>
-        <span onclick="acessoAdmin()" style="opacity: 0.1; cursor:pointer; margin-left: 20px;">⚙️</span>
-    </nav>
+    <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">LOJA</span>
+    <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">BOLSA (<span id="count">0</span>)</span>
+</nav>
 </header>
 
 <div class="container">
@@ -314,6 +313,13 @@
     
     function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
     obterCotacoes();
+    // ATALHO SECRETO VERSÃO 3.0: Shift + Alt + A para abrir Admin
+    window.addEventListener('keydown', function(e) {
+        if (e.shiftKey && e.altKey && e.code === 'KeyA') {
+            e.preventDefault(); // Evita qualquer conflito de sistema
+            acessoAdmin();
+        }
+    });
 </script>
 </body>
 </html>

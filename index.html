@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Cura & Cuidado | V3.2 Oficial</title>
+    <title>Espaço Cura & Cuidado | V3.2 Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -100,13 +100,14 @@
             <input type="text" id="adm-nome" placeholder="Nome" style="width:94%; margin-bottom:5px;">
             <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; margin-bottom:5px;">
             <input type="text" id="adm-foto" placeholder="Link Foto" style="width:94%; margin-bottom:5px;">
-            <button class="btn btn-pix" onclick="salvarProduto()">SALVAR ITEM</button>
+            <button class="btn btn-pix" id="btn-save-item" onclick="salvarProduto()">SALVAR ITEM</button>
             <div id="lista-admin-produtos" style="margin-top:10px;"></div>
             <hr>
             <h4>Depoimentos</h4>
             <input type="text" id="d-nome" placeholder="Cliente" style="width:94%; margin-bottom:5px;"><br>
             <textarea id="d-txt" placeholder="Texto" style="width:94%; margin-bottom:5px;"></textarea>
             <button onclick="addDepo()" class="btn btn-btc">PUBLICAR DEPOIMENTO</button>
+            <div id="lista-depo-admin"></div>
             <hr>
             <h4>Cupons & Protocolos Drive</h4>
             <div style="display:flex; gap:5px; margin-bottom:10px;">
@@ -152,7 +153,13 @@
         if(n && p) {
             if(id) { const i = db.produtos.findIndex(x => x.id == id); db.produtos[i] = {id: Number(id), nome:n, preco:p, foto:f}; }
             else { db.produtos.push({id: Date.now(), nome:n, preco:p, foto:f}); }
-            save(); renderizar(); document.getElementById('adm-id').value = ""; document.getElementById('form-titulo').innerText = "Gerir Itens"; notify("Salvo!");
+            save(); renderizar(); 
+            document.getElementById('adm-id').value = ""; 
+            document.getElementById('adm-nome').value = ""; 
+            document.getElementById('adm-preco').value = "";
+            document.getElementById('adm-foto').value = "";
+            document.getElementById('form-titulo').innerText = "Gerir Itens"; 
+            notify("Salvo!");
         }
     }
 
@@ -163,20 +170,29 @@
         document.getElementById('adm-preco').value = p.preco;
         document.getElementById('adm-foto').value = p.foto;
         document.getElementById('form-titulo').innerText = "Editando: " + p.nome;
+        window.scrollTo(0,0);
     }
+
+    function removerProd(id) { if(confirm('Excluir este item?')){ db.produtos = db.produtos.filter(x => x.id != id); save(); renderizar(); } }
 
     function addDepo() {
         const n = document.getElementById('d-nome').value;
         const t = document.getElementById('d-txt').value;
-        if(n && t) { db.depoimentos.push({id: Date.now(), nome: n, texto: t}); save(); renderizar(); notify("Publicado!"); }
+        if(n && t) { db.depoimentos.push({id: Date.now(), nome: n, texto: t}); save(); renderizar(); 
+            document.getElementById('d-nome').value = ""; document.getElementById('d-txt').value = ""; notify("Publicado!"); }
     }
+
+    function removerDepo(id) { db.depoimentos = db.depoimentos.filter(x => x.id != id); save(); renderizar(); }
 
     function addCupom() {
         const n = document.getElementById('c-nome').value.toUpperCase();
         const p = parseInt(document.getElementById('c-pct').value);
         const h = parseInt(document.getElementById('c-hrs').value) || 24;
-        if(n && p) { db.cupons.push({nome:n, pct:p, expiraEm: Date.now()+(h*3600000)}); save(); renderizar(); }
+        if(n && p) { db.cupons.push({nome:n, pct:p, expiraEm: Date.now()+(h*3600000)}); save(); renderizar(); 
+            document.getElementById('c-nome').value = ""; document.getElementById('c-pct').value = ""; }
     }
+
+    function removerCupom(i) { db.cupons.splice(i, 1); save(); renderizar(); }
 
     async function gerarPDF(tipo, valor, itens) {
         const { jsPDF } = window.jspdf;
@@ -188,16 +204,12 @@
 
         const pedido = { protocolo, data: dataStr, valor, tipo, itens: listaNomes };
         
-        // ENVIO GOOGLE DRIVE (WEB APP)
         fetch(GOOGLE_DRIVE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pedido) });
-
         db.pedidos.push(pedido); save(); renderizar();
 
         doc.setFontSize(22); doc.setTextColor(166, 138, 120); doc.text("Espaco Cura & Cuidado", 20, 30);
-        doc.setFontSize(10); doc.setTextColor(0,0,0);
-        doc.text("--------------------------------------------------", 20, 40);
-        doc.text("PROTOCOLO DE RESERVA: " + protocolo, 20, 50);
-        doc.text("DATA/HORA: " + dataStr, 20, 60);
+        doc.setFontSize(10); doc.text("PROTOCOLO: " + protocolo, 20, 50);
+        doc.text("DATA: " + dataStr, 20, 60);
         doc.text("PAGAMENTO: " + tipo + " | VALOR: " + valor, 20, 70);
         doc.text("ITENS:", 20, 85);
         itens.forEach((it, i) => doc.text("- " + it.nome, 25, 95 + (i * 10)));
@@ -210,14 +222,21 @@
         const cod = document.getElementById('cupom-input').value.toUpperCase();
         const c = db.cupons.find(x => x.nome === cod);
         if(c) { descPct = c.pct; document.getElementById('msg-cupom').innerHTML = `<span style="color:green">Cupom ${c.pct}% Ativado!</span>`; renderizar(); }
+        else { alert("Cupom inválido ou expirado"); }
     }
 
     function renderizar() {
         document.getElementById('vitrine').innerHTML = db.produtos.map(p => `<div class="produto-card"><img src="${p.foto}"><div class="produto-info"><h3>${p.nome}</h3><div class="preco-brl">R$ ${p.preco.toFixed(2)}</div><div class="precos-cripto"><span class="selo-cripto selo-btc">₿ ${(p.preco/prices.btc).toFixed(8)}</span> <span class="selo-cripto selo-usdt">₮ ${(p.preco/prices.usdt).toFixed(2)}</span></div><button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button></div></div>`).join('');
+        
         document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `<div class="depo-card"><p>"${d.texto}"</p><strong>- ${d.nome}</strong></div>`).join('');
-        document.getElementById('lista-admin-produtos').innerHTML = db.produtos.map(p => `<div style="display:flex; justify-content:space-between; font-size:0.8em; padding:5px; border-bottom:1px solid #eee;"><span>${p.nome}</span><div><button onclick="editarProd(${p.id})">✏️</button><button onclick="db.produtos=db.produtos.filter(x=>x.id!=${p.id});save();renderizar();">🗑️</button></div></div>`).join('');
-        document.getElementById('adm-cupons-lista').innerHTML = db.cupons.map((c, i) => { const m = Math.max(0, Math.floor((c.expiraEm - Date.now()) / 60000)); return `<div style="display:flex; justify-content:space-between; font-size:0.7em; background:#f4f4f4; padding:5px; margin-bottom:2px;"><span>${c.nome} (${c.pct}%) - Faltam ${Math.floor(m/60)}h ${m%60}m</span><button onclick="db.cupons.splice(${i},1);save();renderizar();">✖</button></div>`; }).join('');
-        document.getElementById('lista-pedos-admin').innerHTML = "<b>Recentes (Local):</b><br>" + db.pedidos.slice(-5).reverse().map(p => `${p.protocolo} | ${p.valor}`).join('<br>');
+        
+        document.getElementById('lista-depo-admin').innerHTML = db.depoimentos.map(d => `<div style="font-size:0.7em; padding:5px; border-bottom:1px solid #eee;">${d.nome} <button onclick="removerDepo(${d.id})" style="color:red; background:none; border:none; cursor:pointer;">[Excluir]</button></div>`).join('');
+
+        document.getElementById('lista-admin-produtos').innerHTML = db.produtos.map(p => `<div style="display:flex; justify-content:space-between; font-size:0.8em; padding:5px; border-bottom:1px solid #eee;"><span>${p.nome}</span><div><button onclick="editarProd(${p.id})" style="cursor:pointer">✏️</button><button onclick="removerProd(${p.id})" style="cursor:pointer; color:red">🗑️</button></div></div>`).join('');
+        
+        document.getElementById('adm-cupons-lista').innerHTML = db.cupons.map((c, i) => { const m = Math.max(0, Math.floor((c.expiraEm - Date.now()) / 60000)); return `<div style="display:flex; justify-content:space-between; font-size:0.7em; background:#f4f4f4; padding:5px; margin-bottom:2px;"><span>${c.nome} (${c.pct}%) - Expira em ${Math.floor(m/60)}h ${m%60}m</span><button onclick="removerCupom(${i})" style="color:red; background:none; border:none; cursor:pointer;">✖</button></div>`; }).join('');
+        
+        document.getElementById('lista-pedos-admin').innerHTML = "<b>Recentes:</b><br>" + db.pedidos.slice(-5).reverse().map(p => `${p.protocolo} | ${p.valor}`).join('<br>');
         
         const t = cart.reduce((a, b) => a + b.preco, 0);
         const f = t * (1 - (descPct/100));
@@ -227,7 +246,13 @@
     }
 
     function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Na bolsa!"); }
-    function salvarConfig() { db.config.pix = document.getElementById('cfg-pix').value; db.config.btc = document.getElementById('cfg-btc').value; db.config.usdt = document.getElementById('cfg-usdt').value; save(); notify("Salvo!"); }
+    
+    function salvarConfig() { 
+        db.config.pix = document.getElementById('cfg-pix').value; 
+        db.config.btc = document.getElementById('cfg-btc').value; 
+        db.config.usdt = document.getElementById('cfg-usdt').value; 
+        save(); notify("Configurações Salvas!"); 
+    }
 
     function abrirCheckout(t) {
         if(cart.length === 0) return;
@@ -239,7 +264,7 @@
         document.getElementById('checkout-conteudo').innerHTML = `<h3>Pagar ${t}</h3><h2 style="color:${c}">${v}</h2><div style="background:#eee; padding:10px; border-radius:10px; font-size:0.8em; word-break:break-all; cursor:pointer" onclick="navigator.clipboard.writeText('${k}'); this.innerText='COPIADO!'">${k || 'Sem carteira'}</div><button class="btn" style="background:${c}; color:white" onclick="gerarPDF('${t}', '${v}', cart)">GERAR COMPROVANTE & WHATSAPP</button><button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">CANCELAR</button>`;
         document.getElementById('modal-checkout').style.display='flex';
     }
-    setInterval(() => { let m=false; db.cupons=db.cupons.filter(c=>{if(Date.now()>c.expiraEm){m=true; return false;} return true;}); if(m){save(); renderizar();} }, 30000);
+
     obterCotacoes();
 </script>
 </body>

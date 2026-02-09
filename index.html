@@ -117,15 +117,71 @@
 </div>
 
 <footer><p>&copy; 2026 Espaço Cura & Cuidado</p></footer>
-
-<script>
+    <script>
     const SEU_TEL = "5585991561497";
-    const GOOGLE_DRIVE_URL = "https://script.google.com/macros/s/AKfycbzJX1xEwkZzAi13ybppqCogsCr2PejAO7AHOLuX670Dw7oDetenq7lIdSbqybHN9p7Q/exec";
+    
+    // LINKS DO GOOGLE SHEETS
+    const URL_PRODUTOS = "https://script.google.com/macros/s/AKfycbwIi28C56HG3k4FXzg3fjIx6Fo95TfTOHRosS7IoW7OS4n5EMrQOgEGG_H1j5ObGJ_o2w/exec";
+    const URL_DEPOIMENTOS = "https://script.google.com/macros/s/AKfycbzkdH4s5T8Bduo1A71A3kZs7FZWUHU67Lv3EGRV3bMwR5rHdZnIFvglty-RmjjuTVw/exec";
+    const URL_CLIENTES = "https://script.google.com/macros/s/AKfycbwGenWujBydG91HpHBjRlkHYJ3P0XBdLaGkHN_CAZc8lZ0GpoLZN81IS5BzCgKsH0nSUw/exec";
 
-    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], cupons: [], depoimentos: [], pedidos: [], config: { pix:'', btc:'', usdt:'' } };
+    let db = JSON.parse(localStorage.getItem('cura_v3_db')) || { produtos: [], depoimentos: [], clientes: [], config: { pix:'', btc:'', usdt:'' } };
     let cart = []; let prices = { btc: 600000, usdt: 5.10 }; let descPct = 0;
     let tempoReserva; let minutosRestantes = 5; let segundosRestantes = 0;
 
+    // --- SINCRONIZAÇÃO COM A NUVEM ---
+    async function carregarDadosSincronizados() {
+        try {
+            notify("Sincronizando com a nuvem...");
+            const [resProd, resDepo, resCli] = await Promise.all([
+                fetch(URL_PRODUTOS),
+                fetch(URL_DEPOIMENTOS),
+                fetch(URL_CLIENTES)
+            ]);
+
+            db.produtos = await resProd.json();
+            db.depoimentos = await resDepo.json();
+            db.clientes = await resCli.json();
+
+            save();
+            renderizar();
+            notify("Tudo atualizado!");
+        } catch (e) {
+            console.error("Erro ao sincronizar:", e);
+            renderizar();
+        }
+    }
+
+    // --- FUNÇÕES DE SALVAMENTO REMOTO ---
+    async function salvarProduto() {
+        const n = document.getElementById('adm-nome').value;
+        const p = parseFloat(document.getElementById('adm-preco').value);
+        const f = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
+        if(n && p) {
+            notify("Salvando produto...");
+            await fetch(URL_PRODUTOS, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ nome: n, preco: p, foto: f }) });
+            document.getElementById('adm-nome').value = ""; document.getElementById('adm-preco').value = "";
+            setTimeout(carregarDadosSincronizados, 1500);
+        }
+    }
+
+    async function addDepoimento() {
+        const nome = document.getElementById('d-nome').value;
+        const texto = document.getElementById('d-txt').value;
+        if(nome && texto) {
+            notify("Publicando depoimento...");
+            await fetch(URL_DEPOIMENTOS, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ nome: nome, texto: texto }) });
+            document.getElementById('d-txt').value = "";
+            setTimeout(carregarDadosSincronizados, 1500);
+        }
+    }
+
+    // Função para registrar cliente no Google Sheets ao finalizar compra
+    async function registrarCliente(nome, tel) {
+        await fetch(URL_CLIENTES, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ nome: nome, telefone: tel, data: new Date().toLocaleDateString() }) });
+    }
+
+    // --- RESTANTE DAS FUNÇÕES (Ajustadas para o novo DB) ---
     async function obterCotacoes() {
         try {
             const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether&vs_currencies=brl');
@@ -138,110 +194,23 @@
     window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') { document.getElementById('modal-login').style.display='flex'; } });
     function fecharLogin() { document.getElementById('modal-login').style.display='none'; }
     function verificarSenha() { if(document.getElementById('senha-admin').value === "Mychell1904") { fecharLogin(); mostrar('admin'); } else { alert("Senha incorreta"); } }
-
     function save() { localStorage.setItem('cura_v3_db', JSON.stringify(db)); }
     function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
-    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
-
-    function salvarProduto() {
-        const id = document.getElementById('adm-id').value;
-        const n = document.getElementById('adm-nome').value;
-        const p = parseFloat(document.getElementById('adm-preco').value);
-        const f = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
-        if(n && p) {
-            if(id) { const i = db.produtos.findIndex(x => x.id == id); db.produtos[i] = {id: Number(id), nome:n, preco:p, foto:f}; }
-            else { db.produtos.push({id: Date.now(), nome:n, preco:p, foto:f}); }
-            save(); renderizar(); 
-            document.getElementById('adm-id').value = ""; document.getElementById('adm-nome').value = ""; document.getElementById('adm-preco').value = ""; document.getElementById('adm-foto').value = "";
-            notify("Produto Salvo!");
-        }
-    }
-    function iniciarTimer() {
-    clearInterval(tempoReserva); // Limpa qualquer contagem anterior
-    minutosRestantes = 5;
-    segundosRestantes = 0;
-
-    tempoReserva = setInterval(() => {
-        if (segundosRestantes === 0) {
-            if (minutosRestantes === 0) {
-                esvaziarBolsaPorTempo();
-                return;
-            }
-            minutosRestantes--;
-            segundosRestantes = 59;
-        } else {
-            segundosRestantes--;
-        }
-        atualizarDisplayTimer();
-    }, 1000);
-}
-
-function esvaziarBolsaPorTempo() {
-    clearInterval(tempoReserva);
-    cart = [];
-    renderizar();
-    notify("Tempo de reserva expirado! A bolsa foi esvaziada.");
-}
-
-    function editarProd(id) {
-        const p = db.produtos.find(x => x.id == id);
-        document.getElementById('adm-id').value = p.id;
-        document.getElementById('adm-nome').value = p.nome;
-        document.getElementById('adm-preco').value = p.preco;
-        document.getElementById('adm-foto').value = p.foto;
-        window.scrollTo(0,0);
-    }
-function addDepoimento() {
-    const nome = document.getElementById('d-nome').value;
-    const texto = document.getElementById('d-txt').value;
-    
-    if(nome && texto) {
-        // Adiciona ao banco de dados com um ID único
-        db.depoimentos.push({
-            id: Date.now(),
-            nome: nome,
-            texto: texto
-        });
-        save();      // Salva no navegador
-        renderizar(); // Atualiza a tela
-        
-        // Limpa os campos após salvar
-        document.getElementById('d-nome').value = "";
-        document.getElementById('d-txt').value = "";
-        notify("Depoimento publicado!");
-    } else {
-        alert("Preencha o nome e o texto do depoimento");
-    }
-}
-
-function removerDepo(id) {
-    if(confirm('Excluir este depoimento?')){
-        // Filtra a lista removendo o ID selecionado
-        db.depoimentos = db.depoimentos.filter(x => x.id != id);
-        save();
-        renderizar();
-    }
-}
-    function removerProd(id) { if(confirm('Excluir?')){ db.produtos = db.produtos.filter(x => x.id != id); save(); renderizar(); } }
+    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2500); }
 
     function addCart(id) {
-    const item = db.produtos.find(p => p.id == id);
-    if(item) {
-        cart.push(item);
-        iniciarTimer(); // <--- O "pulo do gato" está aqui: ele reseta o tempo
-        renderizar();
-        notify("Item reservado por 5 minutos!");
+        const item = db.produtos.find(p => p.id == id);
+        if(item) { cart.push(item); iniciarTimer(); renderizar(); notify("Item na bolsa!"); }
     }
-}
 
     function renderizar() {
-        // Vitrine: CORREÇÃO: Adicionadas aspas '${p.id}' no onclick
+        // Render Vitrine
         document.getElementById('vitrine').innerHTML = db.produtos.map(p => `
             <div class="produto-card">
                 <img src="${p.foto}">
                 <div class="produto-info">
                     <h3>${p.nome}</h3>
-                    <div class="preco-brl">R$ ${p.preco.toFixed(2)}</div>
+                    <div class="preco-brl">R$ ${Number(p.preco).toFixed(2)}</div>
                     <div class="precos-cripto">
                         <span class="selo-cripto selo-btc">₿ ${(p.preco/prices.btc).toFixed(8)}</span>
                         <span class="selo-cripto selo-usdt">₮ ${(p.preco/prices.usdt).toFixed(2)}</span>
@@ -249,52 +218,78 @@ function removerDepo(id) {
                     <button class="btn" style="background:var(--primaria); color:white" onclick="addCart('${p.id}')">RESERVAR</button>
                 </div>
             </div>`).join('');
+
+        // Render Depoimentos
         document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `
-    <div class="depo-card">
-        <p>"${d.texto}"</p>
-        <strong>- ${d.nome}</strong>
-    </div>
-`).join('');    
+            <div class="depo-card"><p>"${d.texto}"</p><strong>- ${d.nome}</strong></div>
+        `).join('');
 
-        document.getElementById('lista-admin-produtos').innerHTML = db.produtos.map(p => `
-            <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee;">
-                <span>${p.nome}</span>
-                <div>
-                    <button onclick="editarProd('${p.id}')">✏️</button>
-                    <button onclick="removerProd('${p.id}')" style="color:red">🗑️</button>
-                </div>
-            </div>`).join('');
-        document.getElementById('lista-depo-admin').innerHTML = db.depoimentos.map(d => `
-    <div style="display:flex; justify-content:space-between; font-size:0.8em; padding:5px; border-bottom:1px solid #eee;">
-        <span>${d.nome}</span>
-        <button onclick="removerDepo('${d.id}')" style="color:red; background:none; border:none; cursor:pointer;">[x]</button>
-    </div>
-`).join('');
-
-        const t = cart.reduce((a, b) => a + b.preco, 0);
+        const t = cart.reduce((a, b) => a + Number(b.preco), 0);
         const f = t * (1 - (descPct/100));
         document.getElementById('total-carrinho').innerText = "Total: R$ " + f.toFixed(2);
         document.getElementById('count').innerText = cart.length;
-        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
-   // CHAMADA DO TIMER DENTRO DA FUNÇÃO
-    atualizarDisplayTimer(); 
-} // CHAVE ÚNICA QUE FECHA A FUNÇÃO RENDERIZAR
-    
-    function atualizarDisplayTimer() {
-    const display = document.getElementById('contador-reserva');
-    const texto = document.getElementById('timer-display');
-    if (cart.length > 0) {
-        display.style.display = 'block';
-        texto.innerText = `${minutosRestantes.toString().padStart(2, '0')}:${segundosRestantes.toString().padStart(2, '0')}`;
-    } else {
-        display.style.display = 'none';
-        clearInterval(tempoReserva);
+        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${i.nome}</span><b>R$ ${Number(i.preco).toFixed(2)}</b></div>`).join('');
+        atualizarDisplayTimer();
     }
-}    
-    function aplicarCupom() {
-        const cod = document.getElementById('cupom-input').value.toUpperCase();
-        if(cod === "CURA10") { descPct = 10; document.getElementById('msg-cupom').innerHTML = "<span style='color:green'>10% de desconto aplicado!</span>"; renderizar(); }
-        else { alert("Cupom inválido"); }
+
+    // --- TIMER E PAGAMENTO ---
+    function iniciarTimer() {
+        clearInterval(tempoReserva); minutosRestantes = 5; segundosRestantes = 0;
+        tempoReserva = setInterval(() => {
+            if (segundosRestantes === 0) {
+                if (minutosRestantes === 0) { esvaziarBolsaPorTempo(); return; }
+                minutosRestantes--; segundosRestantes = 59;
+            } else { segundosRestantes--; }
+            atualizarDisplayTimer();
+        }, 1000);
+    }
+
+    function atualizarDisplayTimer() {
+        const display = document.getElementById('contador-reserva');
+        const texto = document.getElementById('timer-display');
+        if (cart.length > 0) { display.style.display = 'block'; texto.innerText = `${minutosRestantes.toString().padStart(2, '0')}:${segundosRestantes.toString().padStart(2, '0')}`; }
+        else { display.style.display = 'none'; clearInterval(tempoReserva); }
+    }
+
+    function esvaziarBolsaPorTempo() { clearInterval(tempoReserva); cart = []; renderizar(); notify("Tempo expirado!"); }
+
+    function abrirCheckout(t) {
+        if(cart.length === 0) return alert("Bolsa vazia");
+        const total = cart.reduce((a, b) => a + Number(b.preco), 0) * (1 - (descPct/100));
+        let v, k, c;
+        if(t==='PIX'){ v=`R$ ${total.toFixed(2)}`; k=db.config.pix; c='var(--sucesso)'; }
+        else if(t==='BTC'){ v=`₿ ${(total/prices.btc).toFixed(8)}`; k=db.config.btc; c='var(--cripto-btc)'; }
+        else { v=`₮ ${(total/prices.usdt).toFixed(2)}`; k=db.config.usdt; c='var(--cripto-usdt)'; }
+        
+        document.getElementById('checkout-conteudo').innerHTML = `
+            <h3>Pagar via ${t}</h3>
+            <h2 style="color:${c}">${v}</h2>
+            <div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; cursor:pointer" onclick="navigator.clipboard.writeText('${k}'); notify('Copiado!')">${k || 'Chave não configurada'}</div>
+            <input type="text" id="nome-cliente" placeholder="Seu Nome" style="width:80%; padding:10px; margin-top:15px; border-radius:10px; border:1px solid #ddd;">
+            <button class="btn" style="background:${c}; color:white" onclick="finalizar('${t}', '${v}')">GERAR COMPROVANTE</button>
+            <button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
+        document.getElementById('modal-checkout').style.display='flex';
+    }
+
+    async function finalizar(tipo, valor) {
+        const nomeCli = document.getElementById('nome-cliente').value;
+        if(!nomeCli) return alert("Por favor, digite seu nome");
+
+        const protocolo = "CURA-" + Math.floor(1000 + Math.random() * 9000);
+        registrarCliente(nomeCli, "Via Checkout"); // Salva o cliente na planilha!
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("Reserva Espaco Cura & Cuidado", 20, 20);
+        doc.text("Cliente: " + nomeCli, 20, 30);
+        doc.text("Protocolo: " + protocolo, 20, 40);
+        doc.text("Valor: " + valor, 20, 50);
+        doc.save(`reserva-${protocolo}.pdf`);
+
+        window.open(`https://wa.me/${SEU_TEL}?text=Ola! Me chamo ${nomeCli}. Fiz uma reserva via ${tipo}. Protocolo: ${protocolo}`, '_blank');
+        cart = []; renderizar();
+        document.getElementById('modal-checkout').style.display='none';
+        mostrar('loja');
     }
 
     function salvarConfig() { 
@@ -304,42 +299,9 @@ function removerDepo(id) {
         save(); notify("Carteiras Salvas!"); 
     }
 
-    function abrirCheckout(t) {
-        if(cart.length === 0) return alert("Bolsa vazia");
-        const total = cart.reduce((a, b) => a + b.preco, 0) * (1 - (descPct/100));
-        let v, k, c;
-        if(t==='PIX'){ v=`R$ ${total.toFixed(2)}`; k=db.config.pix; c='var(--sucesso)'; }
-        else if(t==='BTC'){ v=`₿ ${(total/prices.btc).toFixed(8)}`; k=db.config.btc; c='var(--cripto-btc)'; }
-        else { v=`₮ ${(total/prices.usdt).toFixed(2)}`; k=db.config.usdt; c='var(--cripto-usdt)'; }
-        
-        document.getElementById('checkout-conteudo').innerHTML = `
-            <h3>Pagar via ${t}</h3>
-            <h2 style="color:${c}">${v}</h2>
-            <div style="background:#f4f4f4; padding:15px; border-radius:10px; word-break:break-all; cursor:pointer" onclick="navigator.clipboard.writeText('${k}'); this.innerText='COPIADO!'">${k || 'Chave não configurada'}</div>
-            <p style="font-size:0.7em; margin-top:10px;">Clique na chave para copiar</p>
-            <button class="btn" style="background:${c}; color:white" onclick="finalizar('${t}', '${v}')">GERAR COMPROVANTE</button>
-            <button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">VOLTAR</button>`;
-        document.getElementById('modal-checkout').style.display='flex';
-    }
-
-    async function finalizar(tipo, valor) {
-        const protocolo = "CURA-" + Math.floor(1000 + Math.random() * 9000);
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("Reserva Espaco Cura & Cuidado", 20, 20);
-        doc.text("Protocolo: " + protocolo, 20, 40);
-        doc.text("Valor: " + valor, 20, 50);
-        doc.text("Itens: " + cart.map(i => i.nome).join(", "), 20, 60);
-        doc.save(`reserva-${protocolo}.pdf`);
-
-        window.open(`https://wa.me/${SEU_TEL}?text=Ola! Fiz uma reserva via ${tipo}. Protocolo: ${protocolo}`, '_blank');
-        cart = []; renderizar();
-        document.getElementById('modal-checkout').style.display='none';
-        mostrar('loja');
-    }
-
+    // INICIALIZAÇÃO
     obterCotacoes();
-    renderizar(); // <--- Adicione esta linha aqui no final de tudo
+    carregarDadosSincronizados();
 </script>
 </body>
 </html>

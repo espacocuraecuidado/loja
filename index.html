@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espaço Cura & Cuidado | Versão 2.0 Independente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primaria: #b59b8c; --secundaria: #e8dcd4; --destaque: #d4a5a5; --texto: #4a4a4a; --fundo: #fdfbf9; --sucesso: #25D366; --cripto: #f7931a; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); }
+        header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--secundaria); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        .vitrine { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
+        .carrossel { width: 100%; height: 250px; background: #eee; }
+        .carrossel img { width: 100%; height: 100%; object-fit: cover; }
+        .produto-info { padding: 20px; text-align: center; }
+        .preco-brl { font-size: 1.4em; font-weight: bold; color: var(--primaria); }
+        .preco-btc { font-size: 0.85em; color: var(--cripto); font-weight: 600; margin-bottom: 15px; }
+        #modal-checkout { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .checkout-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
+        .chave-box { background: #f4f4f4; padding: 12px; border-radius: 12px; margin: 10px 0; font-family: monospace; font-size: 0.75em; word-break: break-all; border: 1px solid #ddd; cursor: pointer; }
+        .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-pix { background: var(--sucesso); color: white; }
+        .btn-cripto { background: var(--cripto); color: white; }
+        .secao { display: none; } .ativa { display: block; }
+        #notificacao { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 10px 30px; border-radius: 50px; display: none; z-index: 4000; }
+    </style>
+</head>
+<body>
+<div id="notificacao"></div>
+<div id="modal-checkout"><div class="checkout-box" id="checkout-conteudo"></div></div>
+
+<header>
+    <div class="logo" onclick="mostrar('loja')">Espaço Cura & Cuidado</div>
+    <nav style="margin-top:10px;">
+        <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 15px;">LOJA</span>
+        <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 15px;">BOLSA (<span id="count">0</span>)</span>
+        <span onclick="acessoAdmin()" style="opacity: 0.1; cursor:pointer; margin-left: 20px;">⚙️</span>
+    </nav>
+</header>
+
+<div class="container">
+    <div id="loja" class="secao ativa"><div class="vitrine" id="vitrine"></div></div>
+    <div id="carrinho" class="secao">
+        <div style="max-width: 450px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 25px; border: 1px solid var(--secundaria);">
+            <h3>Resumo</h3>
+            <div id="lista-carrinho"></div>
+            <div id="total-carrinho" style="font-size: 1.5em; color: var(--primaria); text-align: right; font-weight: bold; margin: 20px 0;"></div>
+            <button class="btn btn-pix" onclick="abrirCheckout('PIX')">PAGAR VIA PIX</button>
+            <button class="btn btn-cripto" onclick="abrirCheckout('BTC')">PAGAR COM BITCOIN</button>
+        </div>
+    </div>
+    <div id="admin" class="secao">
+        <div style="max-width: 500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 20px; border: 1px solid var(--primaria);">
+            <h3>Painel de Controle</h3>
+            <input type="text" id="cfg-pix" placeholder="Chave PIX" style="width:94%; padding:10px; margin-bottom:10px;">
+            <input type="text" id="cfg-btc" placeholder="Carteira BTC" style="width:94%; padding:10px; margin-bottom:10px;">
+            <button class="btn btn-cripto" onclick="salvarConfig()">SALVAR CHAVES</button>
+            <hr>
+            <input type="text" id="adm-nome" placeholder="Produto" style="width:94%; padding:10px; margin-bottom:10px;">
+            <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; padding:10px; margin-bottom:10px;">
+            <input type="text" id="adm-foto" placeholder="Link da Foto" style="width:94%; padding:10px; margin-bottom:10px;">
+            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR PRODUTO</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // SEU ENDEREÇO JÁ GRAVADO NO SISTEMA
+    const BTC_PADRAO = "bc1q75yqaqav9l4vx8anplha6pqg7vu0n6rrrfgs0q";
+    const SEU_TEL = "5511999999999"; // Coloque seu WhatsApp real aqui
+
+    let db = JSON.parse(localStorage.getItem('cura_v2_db')) || { produtos: [], config: { pix: '', btc: BTC_PADRAO } };
+    let cart = [];
+    let btcPrice = 0;
+
+    async function obterCotacao() {
+        try {
+            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl');
+            const data = await res.json();
+            btcPrice = data.bitcoin.brl;
+            renderizar();
+        } catch (e) { console.log("Erro cotação"); }
+    }
+
+    function salvarConfig() {
+        db.config.pix = document.getElementById('cfg-pix').value;
+        db.config.btc = document.getElementById('cfg-btc').value || BTC_PADRAO;
+        localStorage.setItem('cura_v2_db', JSON.stringify(db));
+        notify("Salvo!");
+    }
+
+    function salvarProduto() {
+        const nome = document.getElementById('adm-nome').value;
+        const preco = parseFloat(document.getElementById('adm-preco').value);
+        const foto = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
+        db.produtos.push({ id: Date.now(), nome, preco, foto });
+        localStorage.setItem('cura_v2_db', JSON.stringify(db));
+        renderizar();
+        notify("Produto Adicionado!");
+    }
+
+    function renderizar() {
+        const vitrine = document.getElementById('vitrine');
+        vitrine.innerHTML = db.produtos.map(p => {
+            const vBTC = btcPrice > 0 ? (p.preco / btcPrice).toFixed(8) : "...";
+            return `<div class="produto-card">
+                <div class="carrossel"><img src="${p.foto}"></div>
+                <div class="produto-info">
+                    <h3>${p.nome}</h3>
+                    <div class="preco-brl">R$ ${p.preco.toFixed(2)}</div>
+                    <div class="preco-btc">₿ ${vBTC} BTC</div>
+                    <button class="btn btn-pix" onclick="addCart(${p.id})">ADICIONAR</button>
+                </div>
+            </div>`;
+        }).join('');
+        document.getElementById('count').innerText = cart.length;
+        document.getElementById('cfg-pix').value = db.config.pix;
+        document.getElementById('cfg-btc').value = db.config.btc;
+        let total = cart.reduce((acc, i) => acc + i.preco, 0);
+        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; font-size:0.9em; margin-bottom:5px;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
+        document.getElementById('total-carrinho').innerText = `Total: R$ ${total.toFixed(2)}`;
+    }
+
+    function abrirCheckout(tipo) {
+        const totalBRL = cart.reduce((acc, i) => acc + i.preco, 0);
+        const modal = document.getElementById('modal-checkout');
+        const conteudo = document.getElementById('checkout-conteudo');
+        modal.style.display = 'flex';
+
+        if(tipo === 'PIX') {
+            conteudo.innerHTML = `<h3>Pagamento PIX</h3><p>R$ ${totalBRL.toFixed(2)}</p>
+                <div class="chave-box" onclick="copiar('${db.config.pix}')">${db.config.pix || 'Chave não cadastrada'}</div>
+                <button class="btn btn-pix" onclick="enviarWhats('PIX')">ENVIAR COMPROVANTE</button>
+                <button class="btn" onclick="fecharCheckout()">FECHAR</button>`;
+        } else {
+            const tBTC = (totalBRL / btcPrice).toFixed(8);
+            conteudo.innerHTML = `<h3>Pagamento BTC</h3><p style="color:var(--cripto); font-weight:bold;">₿ ${tBTC} BTC</p>
+                <div class="chave-box" onclick="copiar('${db.config.btc}')">${db.config.btc}</div>
+                <button class="btn btn-cripto" onclick="enviarWhats('BTC')">ENVIAR COMPROVANTE</button>
+                <button class="btn" onclick="fecharCheckout()">FECHAR</button>`;
+        }
+    }
+
+    function enviarWhats(metodo) {
+        const msg = `Olá! Realizei o pagamento via ${metodo}. Aguardo confirmação.`;
+        window.open(`https://wa.me/${SEU_TEL}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function copiar(t) { navigator.clipboard.writeText(t); notify("Copiado!"); }
+    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Na bolsa!"); }
+    function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
+    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
+    function acessoAdmin() { if(prompt("Senha:") === "1234") mostrar('admin'); }
+    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
+    obterCotacao();
+</script>
+</body>
+</html>

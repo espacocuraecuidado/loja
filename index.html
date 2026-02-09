@@ -185,7 +185,7 @@
     function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado!"); }
     function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
     function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
-    function acessoAdmin() { if(prompt("Senha:") === "1234") mostrar('admin'); }
+    function acessoAdmin() { if(prompt("Senha:") === "Mychell1904") mostrar('admin'); }
     function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
     obterCotacoes();
 </script>

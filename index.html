@@ -69,18 +69,27 @@
             <button class="btn btn-usdt" onclick="abrirCheckout('USDT')">PAGAR COM USDT</button>
         </div>
     </div>
-    <div id="admin" class="secao">
+   <div id="admin" class="secao">
         <div style="max-width: 500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 20px; border: 1px solid var(--primaria);">
             <h3>Painel Admin</h3>
             <input type="text" id="cfg-pix" placeholder="Chave PIX" style="width:94%; padding:10px; margin-bottom:10px;">
             <input type="text" id="cfg-btc" placeholder="Carteira Bitcoin" style="width:94%; padding:10px; margin-bottom:10px;">
             <input type="text" id="cfg-usdt" placeholder="Carteira USDT" style="width:94%; padding:10px; margin-bottom:10px;">
             <button class="btn btn-btc" onclick="salvarConfig()">SALVAR CARTEIRAS</button>
-            <hr style="margin: 20px 0;">
-            <input type="text" id="adm-nome" placeholder="Produto" style="width:94%; padding:10px; margin-bottom:10px;">
+            
+            <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--secundaria);">
+            
+            <h4>Novo Produto/Serviço</h4>
+            <input type="text" id="adm-nome" placeholder="Nome do Serviço" style="width:94%; padding:10px; margin-bottom:10px;">
             <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="text" id="adm-foto" placeholder="Link da Foto" style="width:94%; padding:10px; margin-bottom:10px;">
-            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR</button>
+            <input type="text" id="adm-foto" placeholder="Link da Foto (URL)" style="width:94%; padding:10px; margin-bottom:10px;">
+            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR À VITRINE</button>
+
+            <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--secundaria);">
+            
+            <h4>Produtos Cadastrados</h4>
+            <div id="lista-admin" style="text-align: left; font-size: 0.9em;">
+                </div>
         </div>
     </div>
 </div>

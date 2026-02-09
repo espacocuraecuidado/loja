@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Cura & Cuidado | Oficial</title>
+    <title>Espaço Cura & Cuidado | Multi-Cripto</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primaria: #b59b8c; --secundaria: #e8dcd4; --destaque: #d4a5a5; --texto: #4a4a4a; --fundo: #fdfbf9; --sucesso: #25D366; --cripto: #f7931a; }
+        :root { --primaria: #b59b8c; --secundaria: #e8dcd4; --destaque: #d4a5a5; --texto: #4a4a4a; --fundo: #fdfbf9; --sucesso: #25D366; --cripto-btc: #f7931a; --cripto-usdt: #26a17b; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); }
         header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--secundaria); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
@@ -16,44 +16,24 @@
         .carrossel { width: 100%; height: 250px; background: #eee; }
         .carrossel img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* DESIGN DE PREÇO CRIPTO */
+        /* DESIGN DE PREÇO MULTI-CRIPTO */
         .produto-info { padding: 20px; text-align: center; }
         .preco-brl { font-size: 1.4em; font-weight: bold; color: var(--primaria); }
-        .preco-btc { 
-            font-size: 0.8em; 
-            color: var(--cripto); 
-            font-weight: 600; 
-            margin-top: 5px;
-            background: rgba(247, 147, 26, 0.08);
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 50px;
-        }
+        .precos-cripto { margin-top: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .selo-cripto { font-size: 0.75em; font-weight: 600; padding: 3px 10px; border-radius: 50px; }
+        .selo-btc { color: var(--cripto-btc); background: rgba(247, 147, 26, 0.1); }
+        .selo-usdt { color: var(--cripto-usdt); background: rgba(38, 161, 123, 0.1); }
 
         #modal-checkout { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .checkout-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
-        
-        /* DESIGN DE CAIXA DE CÓPIA */
-        .chave-box { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 12px; 
-            margin: 15px 0; 
-            font-family: monospace; 
-            font-size: 0.8em; 
-            word-break: break-all; 
-            border: 1px solid var(--secundaria); 
-            cursor: pointer;
-            transition: 0.2s;
-            position: relative;
-        }
-        .chave-box:active { transform: scale(0.98); background: #f0f0f0; }
+        .chave-box { background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; font-family: monospace; font-size: 0.8em; word-break: break-all; border: 1px solid var(--secundaria); cursor: pointer; transition: 0.2s; }
         
         .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-pix { background: var(--sucesso); color: white; }
-        .btn-cripto { background: var(--cripto); color: white; }
+        .btn-btc { background: var(--cripto-btc); color: white; }
+        .btn-usdt { background: var(--cripto-usdt); color: white; }
         .secao { display: none; } .ativa { display: block; }
-        #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 4000; font-size: 0.9em; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 4000; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -63,8 +43,8 @@
 <header>
     <div class="logo" onclick="mostrar('loja')">Espaço Cura & Cuidado</div>
     <nav style="margin-top:10px;">
-        <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em; letter-spacing: 1px;">LOJA</span>
-        <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em; letter-spacing: 1px;">BOLSA (<span id="count">0</span>)</span>
+        <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">LOJA</span>
+        <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 15px; font-weight: 600; font-size: 0.8em;">BOLSA (<span id="count">0</span>)</span>
         <span onclick="acessoAdmin()" style="opacity: 0.1; cursor:pointer; margin-left: 20px;">⚙️</span>
     </nav>
 </header>
@@ -73,133 +53,128 @@
     <div id="loja" class="secao ativa"><div class="vitrine" id="vitrine"></div></div>
     <div id="carrinho" class="secao">
         <div style="max-width: 450px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 25px; border: 1px solid var(--secundaria);">
-            <h3 style="font-family: 'Playfair Display'; margin-top: 0;">Resumo do Pedido</h3>
+            <h3 style="margin-top:0">Finalizar Reserva</h3>
             <div id="lista-carrinho"></div>
             <div id="total-carrinho" style="font-size: 1.6em; color: var(--primaria); text-align: right; font-weight: bold; margin: 20px 0;"></div>
             <button class="btn btn-pix" onclick="abrirCheckout('PIX')">PAGAR COM PIX</button>
-            <button class="btn btn-cripto" onclick="abrirCheckout('BTC')">PAGAR COM BITCOIN</button>
+            <button class="btn btn-btc" onclick="abrirCheckout('BTC')">PAGAR COM BITCOIN</button>
+            <button class="btn btn-usdt" onclick="abrirCheckout('USDT')">PAGAR COM USDT</button>
         </div>
     </div>
     <div id="admin" class="secao">
         <div style="max-width: 500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 20px; border: 1px solid var(--primaria);">
             <h3>Painel Admin</h3>
             <input type="text" id="cfg-pix" placeholder="Chave PIX" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="text" id="cfg-btc" placeholder="Carteira BTC" style="width:94%; padding:10px; margin-bottom:10px;">
-            <button class="btn btn-cripto" onclick="salvarConfig()">SALVAR CONFIGURAÇÕES</button>
+            <input type="text" id="cfg-btc" placeholder="Carteira Bitcoin" style="width:94%; padding:10px; margin-bottom:10px;">
+            <input type="text" id="cfg-usdt" placeholder="Carteira USDT" style="width:94%; padding:10px; margin-bottom:10px;">
+            <button class="btn btn-btc" onclick="salvarConfig()">SALVAR CARTEIRAS</button>
             <hr style="margin: 20px 0;">
-            <input type="text" id="adm-nome" placeholder="Nome do Produto" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="number" id="adm-preco" placeholder="Preço em R$" style="width:94%; padding:10px; margin-bottom:10px;">
-            <input type="text" id="adm-foto" placeholder="Link da Foto (URL)" style="width:94%; padding:10px; margin-bottom:10px;">
-            <button class="btn btn-pix" onclick="salvarProduto()">CADASTRAR PRODUTO</button>
+            <input type="text" id="adm-nome" placeholder="Produto" style="width:94%; padding:10px; margin-bottom:10px;">
+            <input type="number" id="adm-preco" placeholder="Preço R$" style="width:94%; padding:10px; margin-bottom:10px;">
+            <input type="text" id="adm-foto" placeholder="Link da Foto" style="width:94%; padding:10px; margin-bottom:10px;">
+            <button class="btn btn-pix" onclick="salvarProduto()">ADICIONAR</button>
         </div>
     </div>
 </div>
 
 <script>
     const BTC_PADRAO = "bc1q75yqaqav9l4vx8anplha6pqg7vu0n6rrrfgs0q";
-    const SEU_TEL = "5585991561497"; // Ajuste para seu número
+    const USDT_PADRAO = "0xf3Bd1DD07be863130F1508254A91B6027C07048B";
+    const SEU_TEL = "5511999999999"; 
 
-    let db = JSON.parse(localStorage.getItem('cura_v2_db')) || { produtos: [], config: { pix: '', btc: BTC_PADRAO } };
+    let db = JSON.parse(localStorage.getItem('cura_v2_db')) || { produtos: [], config: { pix: '', btc: BTC_PADRAO, usdt: USDT_PADRAO } };
     let cart = [];
-    let btcPrice = 0;
+    let prices = { btc: 0, usdt: 0 };
 
-    async function obterCotacao() {
+    async function obterCotacoes() {
         try {
-            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl');
+            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether&vs_currencies=brl');
             const data = await res.json();
-            btcPrice = data.bitcoin.brl;
+            prices.btc = data.bitcoin.brl;
+            prices.usdt = data.tether.brl;
             renderizar();
-        } catch (e) { console.log("Erro ao buscar BTC"); }
+        } catch (e) { console.log("Erro API"); }
     }
 
     function salvarConfig() {
         db.config.pix = document.getElementById('cfg-pix').value;
         db.config.btc = document.getElementById('cfg-btc').value || BTC_PADRAO;
+        db.config.usdt = document.getElementById('cfg-usdt').value || USDT_PADRAO;
         localStorage.setItem('cura_v2_db', JSON.stringify(db));
-        notify("✅ Configurações Salvas!");
+        notify("✅ Carteiras Atualizadas!");
     }
 
     function salvarProduto() {
         const nome = document.getElementById('adm-nome').value;
         const preco = parseFloat(document.getElementById('adm-preco').value);
         const foto = document.getElementById('adm-foto').value || 'https://via.placeholder.com/300';
-        if(!nome || !preco) return notify("Preencha os campos!");
+        if(!nome || !preco) return;
         db.produtos.push({ id: Date.now(), nome, preco, foto });
         localStorage.setItem('cura_v2_db', JSON.stringify(db));
         renderizar();
-        notify("📦 Produto Adicionado!");
     }
 
     function renderizar() {
         const vitrine = document.getElementById('vitrine');
-        if(db.produtos.length === 0) vitrine.innerHTML = "<p style='text-align:center; grid-column: 1/-1; opacity:0.5;'>Nenhum produto cadastrado. Acesse o Admin ⚙️</p>";
-        else {
-            vitrine.innerHTML = db.produtos.map(p => {
-                const vBTC = btcPrice > 0 ? (p.preco / btcPrice).toFixed(8) : "...";
-                return `<div class="produto-card">
-                    <div class="carrossel"><img src="${p.foto}"></div>
-                    <div class="produto-info">
-                        <h3 style="margin:0 0 10px 0; font-family:'Playfair Display'">${p.nome}</h3>
-                        <div class="preco-brl">R$ ${p.preco.toFixed(2)}</div>
-                        <div class="preco-btc">₿ ${vBTC} BTC</div>
-                        <button class="btn btn-pix" style="background:var(--primaria)" onclick="addCart(${p.id})">ADICIONAR À BOLSA</button>
+        vitrine.innerHTML = db.produtos.map(p => {
+            const vBTC = prices.btc > 0 ? (p.preco / prices.btc).toFixed(8) : "...";
+            const vUSDT = prices.usdt > 0 ? (p.preco / prices.usdt).toFixed(2) : "...";
+            return `<div class="produto-card">
+                <div class="carrossel"><img src="${p.foto}"></div>
+                <div class="produto-info">
+                    <h3 style="margin:0 0 10px 0;">${p.nome}</h3>
+                    <div class="preco-brl">R$ ${p.preco.toFixed(2)}</div>
+                    <div class="precos-cripto">
+                        <span class="selo-cripto selo-btc">₿ ${vBTC}</span>
+                        <span class="selo-cripto selo-usdt">₮ ${vUSDT}</span>
                     </div>
-                </div>`;
-            }).join('');
-        }
+                    <button class="btn" style="background:var(--primaria); color:white" onclick="addCart(${p.id})">RESERVAR</button>
+                </div>
+            </div>`;
+        }).join('');
         document.getElementById('count').innerText = cart.length;
         document.getElementById('cfg-pix').value = db.config.pix;
         document.getElementById('cfg-btc').value = db.config.btc;
+        document.getElementById('cfg-usdt').value = db.config.usdt;
         let total = cart.reduce((acc, i) => acc + i.preco, 0);
-        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
+        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
         document.getElementById('total-carrinho').innerText = `R$ ${total.toFixed(2)}`;
     }
 
     function abrirCheckout(tipo) {
-        if(cart.length === 0) return notify("Sua bolsa está vazia!");
+        if(cart.length === 0) return;
         const totalBRL = cart.reduce((acc, i) => acc + i.preco, 0);
         const modal = document.getElementById('modal-checkout');
         const conteudo = document.getElementById('checkout-conteudo');
         modal.style.display = 'flex';
 
-        if(tipo === 'PIX') {
-            conteudo.innerHTML = `<h3 style="margin-top:0">Pagamento via PIX</h3>
-                <p style="font-size:1.2em; font-weight:bold;">Total: R$ ${totalBRL.toFixed(2)}</p>
-                <div class="chave-box" onclick="copiar('${db.config.pix}', this)">${db.config.pix || 'Chave não cadastrada'}</div>
-                <p style="font-size:0.75em; opacity:0.7;">Clique acima para copiar a chave</p>
-                <button class="btn btn-pix" onclick="enviarWhats('PIX')">ENVIAR COMPROVANTE</button>
-                <button class="btn" style="background:none; color: #999;" onclick="fecharCheckout()">CANCELAR</button>`;
-        } else {
-            const tBTC = (totalBRL / btcPrice).toFixed(8);
-            conteudo.innerHTML = `<h3 style="margin-top:0">Pagamento em Bitcoin</h3>
-                <p style="font-size:1.1em; color:var(--cripto); font-weight:bold;">₿ ${tBTC} BTC</p>
-                <div class="chave-box" onclick="copiar('${db.config.btc}', this)">${db.config.btc}</div>
-                <p style="font-size:0.75em; opacity:0.7;">Toque no endereço para copiar com segurança</p>
-                <button class="btn btn-cripto" onclick="enviarWhats('Bitcoin')">ENVIAR COMPROVANTE</button>
-                <button class="btn" style="background:none; color: #999;" onclick="fecharCheckout()">CANCELAR</button>`;
-        }
+        let valorFinal, chave, cor;
+        if(tipo === 'PIX') { valorFinal = `R$ ${totalBRL.toFixed(2)}`; chave = db.config.pix; cor = 'var(--sucesso)'; }
+        else if(tipo === 'BTC') { valorFinal = `₿ ${(totalBRL/prices.btc).toFixed(8)} BTC`; chave = db.config.btc; cor = 'var(--cripto-btc)'; }
+        else { valorFinal = `₮ ${(totalBRL/prices.usdt).toFixed(2)} USDT`; chave = db.config.usdt; cor = 'var(--cripto-usdt)'; }
+
+        conteudo.innerHTML = `<h3 style="margin-top:0">Pagamento ${tipo}</h3>
+            <p style="font-size:1.3em; font-weight:bold; color:${cor}">${valorFinal}</p>
+            <div class="chave-box" onclick="copiar('${chave}', this)">${chave || 'Não cadastrada'}</div>
+            <p style="font-size:0.7em; opacity:0.6;">Toque para copiar o endereço</p>
+            <button class="btn" style="background:${cor}; color:white" onclick="enviarWhats('${tipo}')">ENVIAR COMPROVANTE</button>
+            <button class="btn" style="background:none; color:#999" onclick="fecharCheckout()">FECHAR</button>`;
     }
 
     function copiar(t, el) { 
         navigator.clipboard.writeText(t); 
-        const original = el.innerText;
-        el.innerText = "✅ COPIADO COM SUCESSO!";
-        el.style.color = "var(--sucesso)";
-        setTimeout(() => { el.innerText = original; el.style.color = "inherit"; }, 2000);
-        notify("Copiado para a área de transferência!"); 
+        const old = el.innerText; el.innerText = "✅ COPIADO!";
+        setTimeout(() => el.innerText = old, 2000);
+        notify("Copiado!");
     }
 
-    function enviarWhats(metodo) {
-        const msg = `Olá! Acabei de realizar o pagamento de R$ ${document.getElementById('total-carrinho').innerText.replace('R$ ','')} via ${metodo} no site Espaço Cura & Cuidado. Segue o comprovante:`;
-        window.open(`https://wa.me/${SEU_TEL}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
-    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado à bolsa!"); }
+    function enviarWhats(m) { window.open(`https://wa.me/${SEU_TEL}?text=Pagamento ${m} realizado!`, '_blank'); }
+    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado!"); }
     function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
     function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
     function acessoAdmin() { if(prompt("Senha:") === "1234") mostrar('admin'); }
-    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 3000); }
-    obterCotacao();
+    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
+    obterCotacoes();
 </script>
 </body>
 </html>

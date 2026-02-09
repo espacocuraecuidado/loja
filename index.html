@@ -153,12 +153,25 @@
         else if(tipo === 'BTC') { valorFinal = `₿ ${(totalBRL/prices.btc).toFixed(8)} BTC`; chave = db.config.btc; cor = 'var(--cripto-btc)'; }
         else { valorFinal = `₮ ${(totalBRL/prices.usdt).toFixed(2)} USDT`; chave = db.config.usdt; cor = 'var(--cripto-usdt)'; }
 
-        conteudo.innerHTML = `<h3 style="margin-top:0">Pagamento ${tipo}</h3>
+       
+        conteudo.innerHTML = `
+            <h3 style="margin-top:0">Pagamento ${tipo}</h3>
             <p style="font-size:1.3em; font-weight:bold; color:${cor}">${valorFinal}</p>
             <div class="chave-box" onclick="copiar('${chave}', this)">${chave || 'Não cadastrada'}</div>
             <p style="font-size:0.7em; opacity:0.6;">Toque para copiar o endereço</p>
+
+            ${tipo === 'USDT' ? `
+                <div style="margin: 15px 0; padding: 10px; border-radius: 10px; background: #f0fdf4; border: 1px dashed var(--cripto-usdt);">
+                    <p style="font-size:0.7em; color: #166534; margin: 0 0 8px 0;"><strong>Transparência:</strong> Acompanhe sua transação na rede.</p>
+                    <a href="https://polygonscan.com/address/${db.config.usdt}" target="_blank" style="font-size:0.75em; color:var(--cripto-usdt); text-decoration:none; font-weight:bold;">🌐 VERIFICAR NA BLOCKCHAIN →</a>
+                </div>
+            ` : ''}
+
+
             <button class="btn" style="background:${cor}; color:white" onclick="enviarWhats('${tipo}')">ENVIAR COMPROVANTE</button>
-            <button class="btn" style="background:none; color:#999" onclick="fecharCheckout()">FECHAR</button>`;
+            <button class="btn" style="background:none; color:#999" onclick="fecharCheckout()">CANCELAR</button>
+        `;
+
     }
 
     function copiar(t, el) { 

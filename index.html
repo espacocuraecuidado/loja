@@ -245,7 +245,21 @@
         document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; font-size:0.9em"><span>${i.nome}</span><b>R$ ${i.preco.toFixed(2)}</b></div>`).join('');
     }
 
-    function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Na bolsa!"); }
+   function addCart(id) {
+    // 1. Encontra o produto no banco de dados usando o ID
+    const produtoEncontrado = db.produtos.find(p => p.id === id);
+    
+    if (produtoEncontrado) {
+        // 2. Adiciona à lista do carrinho
+        cart.push(produtoEncontrado);
+        // 3. Atualiza a tela para mostrar o número novo na bolsa
+        renderizar();
+        // 4. Mostra o aviso visual "Na bolsa!"
+        notify("Adicionado à bolsa!");
+    } else {
+        console.error("Produto não encontrado para o ID:", id);
+    }
+}
     
     function salvarConfig() { 
         db.config.pix = document.getElementById('cfg-pix').value; 

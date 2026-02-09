@@ -185,7 +185,38 @@
     function addCart(id) { cart.push(db.produtos.find(p => p.id === id)); renderizar(); notify("Adicionado!"); }
     function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
     function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
-    function acessoAdmin() { if(prompt("Senha:") === "Mychell1904") mostrar('admin'); }
+    function acessoAdmin() {
+        // Criamos um fundo escuro para o login
+        const loginOverlay = document.createElement('div');
+        loginOverlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:5000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";        
+        loginOverlay.innerHTML = `
+            <div style="background:white; padding:30px; border-radius:20px; text-align:center; width:280px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                <h4 style="margin-top:0; font-family:'Playfair Display'; color:var(--primaria);">Acesso Restrito</h4>
+                <input type="password" id="pass-input" placeholder="Sua Senha" style="width:90%; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px; text-align:center; font-size:1.2em;">
+                <button id="btn-entrar" class="btn btn-btc" style="margin:0;">ENTRAR</button>
+                <button id="btn-cancel" style="background:none; border:none; color:#999; margin-top:15px; cursor:pointer; font-size:0.8em;">CANCELAR</button>
+            </div>
+        `;
+
+        document.body.appendChild(loginOverlay);
+        document.getElementById('pass-input').focus();
+
+        // Lógica de verificação
+        const verificar = () => {
+            const senhaDigitada = document.getElementById('pass-input').value;
+            if(senhaDigitada === "SUA_SENHA_AQUI") { // Mude aqui para sua senha real!
+                document.body.removeChild(loginOverlay);
+                mostrar('admin');
+            } else {
+                alert("Senha Incorreta!");
+                document.getElementById('pass-input').value = "";
+            }
+        };
+
+        document.getElementById('btn-entrar').onclick = verificar;
+        document.getElementById('btn-cancel').onclick = () => document.body.removeChild(loginOverlay);
+        document.getElementById('pass-input').onkeypress = (e) => { if(e.key === 'Enter') verificar(); };
+    }
     function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(() => n.style.display='none', 2000); }
     obterCotacoes();
 </script>

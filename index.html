@@ -128,6 +128,7 @@
     const URL_PRODUTOS = "https://script.google.com/macros/s/AKfycby-9ppDPcSmkuuxhdGzdWWnrAWJXdxiuv8RbZRmvNDYyTwlmD-c4gwrCQqwgV2ngnIF/exec";
     const URL_DEPOIMENTOS = "https://script.google.com/macros/s/AKfycbywmLuyLLMqMsgj9Rm-_RcpVa7dadyUCNOQYVc-kt5hnnTw3znOkLfpEV_-0zjIwXA/exec";
     const URL_CLIENTES = "https://script.google.com/macros/s/AKfycbwQzMt7purE5d0F3sRKfpWUly5JFTgMv9-NiuLEnhmALLdg1XWLu7nCX7SMty5w5KaYVw/exec";
+    const URL_VENDAS = "https://script.google.com/macros/s/AKfycby2_t6WzeLLikrsagMCzTS4lelKN5ZwNfbnYdWs2fMicufqM9L3XT8CjikNG5eg3Mc4wg/exec";
 
     let db = { produtos: [], depoimentos: [], clientes: [], config: { pix:'', btc:'', usdt:'' } };
     let cart = []; let prices = { btc: 600000, usdt: 5.20 };
@@ -262,34 +263,95 @@
         const label = tipo === 'PIX' ? `R$ ${total.toFixed(2)}` : `${tipo} ${valorCripto}`;
         
         document.getElementById('checkout-conteudo').innerHTML = `
-            <h3>Pagamento ${tipo}</h3>
-            <h2 style="color:var(--primaria)">${label}</h2>
-            <input type="text" id="checkout-nome" placeholder="Seu Nome para o PDF" style="width:80%; padding:10px; margin-bottom:10px;">
-            <button class="btn btn-pix" onclick="finalizarCompra('${tipo}', '${label}')">GERAR COMPROVANTE</button>
-            <button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">CANCELAR</button>`;
+            <div id="status-pagamento">
+                <h3>Pagamento ${tipo}</h3>
+                <h2 style="color:var(--primaria)">${label}</h2>
+                <p style="font-size:0.8em; color:#666; margin-bottom:15px;">Pague usando os dados acima. Depois, digite seu nome e clique para aguardar a liberação do comprovante.</p>
+                <input type="text" id="checkout-nome" placeholder="Seu Nome Completo" style="width:80%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;">
+                <button class="btn btn-pix" id="btn-finalizar" onclick="registrarVenda('${tipo}', '${label}')">CONFIRMAR PAGAMENTO</button>
+                <button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">CANCELAR</button>
+            </div>`;
         document.getElementById('modal-checkout').style.display = 'flex';
+    }    
+    async function registrarVenda(tipo, valor) {
+        const nome = document.getElementById('checkout-nome').value;
+        if(!nome) return alert("Por favor, digite seu nome.");
+
+        const protocolo = "CURA-" + Math.floor(1000 + Math.random() * 9000);
+        const itensNomes = cart.map(i => i.nome).join(", ");
+        const idVenda = Date.now().toString(); // Usamos o timestamp como ID único
+
+        // Muda a interface para o modo de espera (com um efeito visual simples)
+        document.getElementById('status-pagamento').innerHTML = `
+            <div style="padding:20px;">
+                <div style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primaria); border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto 20px auto;"></div>
+                <h3>Verificando Pagamento...</h3>
+                <p>Aguarde nesta tela. Assim que o administrador confirmar o recebimento, seu comprovante será baixado automaticamente.</p>
+                <p style="font-size:0.7em; color:var(--primaria); font-weight:bold;">Protocolo: ${protocolo}</p>
+            </div>
+            <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+        `;
+
+        // 1. Envia os dados para a planilha de Vendas como "pendente"
+        await fetch(URL_VENDAS, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+                id: idVenda,
+                nome: nome,
+                valor: valor,
+                itens: itensNomes,
+                protocolo: protocolo
+            })
+        });
+
+        // 2. Abre o WhatsApp para avisar você
+        window.open(`https://wa.me/${SEU_TEL}?text=Olá! Fiz o pagamento de ${valor}. Protocolo: ${protocolo}. Aguardo a liberação do comprovante.`, '_blank');
+
+        // 3. Começa a "viciar" a planilha a cada 5 segundos
+        monitorarStatus(idVenda, nome, valor, protocolo);
     }
 
-    function finalizarCompra(tipo, valor) {
-        const nome = document.getElementById('checkout-nome').value || "Cliente";
-        const protocolo = "CURA-" + Math.floor(1000 + Math.random() * 9000);
-        const data = new Date().toLocaleDateString();
-        
+    function monitorarStatus(id, nome, valor, protocolo) {
+        const check = setInterval(async () => {
+            try {
+                const res = await fetch(`${URL_VENDAS}?id=${id}`);
+                const data = await res.json();
+
+                if (data.status === "pago") {
+                    clearInterval(check); // Para de perguntar
+                    gerarPDFFinal(nome, valor, protocolo); // Libera o download
+                    
+                    document.getElementById('status-pagamento').innerHTML = `
+                        <h3 style="color:var(--sucesso)">✓ Pagamento Confirmado!</h3>
+                        <p>Seu comprovante foi baixado com sucesso.</p>
+                        <button class="btn btn-pix" onclick="location.reload()">VOLTAR À LOJA</button>
+                    `;
+                    esvaziarBolsa();
+                }
+            } catch (e) { console.log("Aguardando aprovação..."); }
+        }, 5000); 
+    }
+
+    function gerarPDFFinal(nome, valor, protocolo) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.text("Espaço Cura & Cuidado - Reserva", 20, 20);
-        doc.text(`Data: ${data}`, 20, 30);
-        doc.text(`Protocolo: ${protocolo}`, 20, 40);
-        doc.text(`Cliente: ${nome}`, 20, 50);
-        doc.text(`Valor: ${valor}`, 20, 60);
-        doc.text("Itens:", 20, 70);
-        cart.forEach((it, idx) => doc.text(`- ${it.nome}`, 20, 80 + (idx*10)));
-        doc.save(`reserva-${protocolo}.pdf`);
-
-        window.open(`https://wa.me/${SEU_TEL}?text=Ola! Me chamo ${nome}. Protocolo: ${protocolo}. Valor: ${valor}`, '_blank');
-        esvaziarBolsa();
-        document.getElementById('modal-checkout').style.display = 'none';
+        const data = new Date().toLocaleDateString();
+        
+        doc.setFontSize(18);
+        doc.text("COMPROVANTE DE PAGAMENTO", 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Data: ${data}`, 20, 40);
+        doc.text(`Protocolo: ${protocolo}`, 20, 50);
+        doc.text(`Cliente: ${nome}`, 20, 60);
+        doc.text(`Valor Pago: ${valor}`, 20, 70);
+        doc.text("Status: CONFIRMADO", 20, 80);
+        doc.text("--------------------------------------------------", 20, 90);
+        doc.text("Espaço Cura & Cuidado - Agradecemos a confiança.", 20, 105);
+        
+        doc.save(`comprovante-${protocolo}.pdf`);
     }
+    
 
     function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
     function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(()=>n.style.display='none', 3000); }

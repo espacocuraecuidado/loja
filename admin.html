@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - Espaço Cura e Cuidado</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos mantidos */
+        .admin-container { padding: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #e8b4b8; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .btn-excluir { background: #ff4d4d; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .btn-excluir:hover { background: #cc0000; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">👩‍👧 Painel Administrativo</div>
+        <nav class="menu">
+            <a href="index.html">Voltar ao Site</a>
+        </nav>
+    </header>
+
+    <section class="admin-container">
+        <h2>Gestão de Usuários (Planilha)</h2>
+        <p>Abaixo estão as pessoas cadastradas no banco de dados do Google Drive:</p>
+        
+        <table id="tabelaUsuarios">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Usuário</th>
+                    <th>E-mail</th>
+                    <th>Senha</th> <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabela">
+                </tbody>
+        </table>
+    </section>
+
+    <script>
+        // 1. BLOQUEIO DE SEGURANÇA
+        const tipo = localStorage.getItem('tipoUsuario');
+        if (tipo !== 'Admin') {
+            alert('Acesso negado! Esta área é restrita.');
+            window.location.href = 'index.html';
+        }
+
+        // 2. URL DO SCRIPT
+        const urlPlanilha = 'https://script.google.com/macros/s/AKfycbxSMRxcvmDaVsKUP_HQuZ1bJWxYNiVF9HXaAA0WwtywcCNNMMDpjQQeQvZTye3vaB6V/exec';
+
+        // 3. FUNÇÃO PARA BUSCAR DADOS
+        function carregarUsuarios() {
+            const corpo = document.getElementById('corpoTabela');
+            corpo.innerHTML = '<tr><td colspan="5">Carregando dados da planilha...</td></tr>';
+
+            fetch(`${urlPlanilha}?acao=listar`)
+                .then(res => res.json())
+                .then(dados => {
+                    corpo.innerHTML = ''; 
+                    
+                    dados.forEach(user => {
+                        if(user.usuario.toLowerCase() !== 'admin') {
+                            const linha = `
+                                <tr>
+                                    <td>${user.nome}</td>
+                                    <td>${user.usuario}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.senha || '***'}</td> <td>
+                                        <button class="btn-excluir" onclick="excluirUsuario(${user.linha})">Excluir</button>
+                                    </td>
+                                </tr>
+                            `;
+                            corpo.innerHTML += linha;
+                        }
+                    });
+                })
+                .catch(err => {
+                    corpo.innerHTML = '<tr><td colspan="5">Erro ao carregar dados. Verifique a nova implantação no Google Script.</td></tr>';
+                    console.error(err);
+                });
+        }
+
+        // 4. FUNÇÃO PARA EXCLUIR
+        function excluirUsuario(numeroLinha) {
+            if (confirm("ATENÇÃO: Deseja apagar este usuário definitivamente da planilha?")) {
+                fetch(urlPlanilha, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ acao: "excluir", linha: numeroLinha })
+                }).then(() => {
+                    alert("Usuário removido da planilha!");
+                    carregarUsuarios(); 
+                }).catch(err => alert("Erro ao excluir: " + err));
+            }
+        }
+
+        window.onload = carregarUsuarios;
+    </script>
+</body>
+</html>

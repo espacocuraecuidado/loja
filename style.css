@@ -1,0 +1,73 @@
+/* Estilo geral do site */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #fdf6f6; /* Rosa seco suave */
+    color: #333;
+}
+
+/* Cabeçalho */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e8b4b8; /* Rosa seco */
+    padding: 10px 20px;
+}
+
+header .logo {
+    font-size: 2rem;
+}
+
+header .menu a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #fff;
+}
+
+header .acoes {
+    display: flex;
+    gap: 10px;
+}
+
+/* Seção principal */
+.hero {
+    text-align: center;
+    padding: 40px;
+    background-color: #fdf6f6; /* Rosa seco suave */
+}
+
+.hero img {
+    max-width: 300px;
+    margin: 20px auto;
+    display: block;
+}
+
+/* Seções */
+section {
+    padding: 40px;
+}
+
+#produtos {
+    background-color: #f3d6d8; /* Rosa claro */
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #e8b4b8;
+    color: #fff;
+}
+
+/* Classe para esconder elementos */
+.hidden {
+    display: none;
+}
+
+/* Estilo dos produtos */
+#listaProdutos div {
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+}
+

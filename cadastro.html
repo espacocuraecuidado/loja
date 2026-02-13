@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Espaço Cura e Cuidado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section class="hero">
+        <h2>Criar Nova Conta</h2>
+        <form id="formCadastro" style="display: flex; flex-direction: column; max-width: 300px; margin: 0 auto; gap: 10px;">
+            <input type="text" placeholder="Nome Completo" required>
+            <input type="text" placeholder="Nome de Usuário" required>
+            <input type="email" placeholder="E-mail" required>
+            <input type="password" placeholder="Senha de Acesso" required>
+            <hr w-100>
+            <input type="text" placeholder="Informe sua rua ou avenida">
+            <input type="text" placeholder="N° da sua casa">
+            <input type="text" placeholder="Bairro">
+            <input type="text" placeholder="Cidade">
+            <input type="text" placeholder="Estado">
+            <input type="number" placeholder="CEP (6 dígitos)" oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);">
+            
+            <button type="submit">Finalizar Cadastro</button>
+        </form>
+        <p><a href="login.html">Já tenho conta (Voltar ao login)</a></p>
+        <div style="margin-top: 15px;">
+    <p>Ou continue como <a href="index.html" onclick="entrarComoVisitante()" style="color: #e8b4b8; font-weight: bold;">Visitante</a></p>
+</div>
+
+<script>
+function entrarComoVisitante() {
+    localStorage.removeItem('usuarioLogado'); // Garante que não há sobra de logins antigos
+}
+</script>
+    </section>
+
+    <script>
+        document.getElementById('formCadastro').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Criando o objeto com todos os campos que a planilha espera
+    const dadosParaEnviar = {
+        nome: document.querySelector('input[placeholder="Nome Completo"]').value,
+        usuario: document.querySelector('input[placeholder="Nome de Usuário"]').value,
+        email: document.querySelector('input[placeholder="E-mail"]').value,
+        senha: document.querySelector('input[placeholder="Senha de Acesso"]').value,
+        rua: document.querySelector('input[placeholder="Informe sua rua ou avenida"]').value,
+        numero: document.querySelector('input[placeholder="N° da sua casa"]').value,
+        bairro: document.querySelector('input[placeholder="Bairro"]').value,
+        cidade: document.querySelector('input[placeholder="Cidade"]').value,
+        estado: document.querySelector('input[placeholder="Estado"]').value,
+        cep: document.querySelector('input[placeholder="CEP (6 dígitos)"]').value
+    };
+
+    // Enviando para a URL do seu Google Script
+    fetch('https://script.google.com/macros/s/AKfycbxSMRxcvmDaVsKUP_HQuZ1bJWxYNiVF9HXaAA0WwtywcCNNMMDpjQQeQvZTye3vaB6V/exec', {
+        method: 'POST',
+        body: JSON.stringify(dadosParaEnviar)
+    })
+    .then(res => {
+        alert('Cadastro salvo com sucesso na sua planilha do Drive!');
+        window.location.href = 'login.html';
+    })
+    .catch(err => alert('Erro ao salvar: ' + err));
+});
+    </script>
+</body>
+</html>

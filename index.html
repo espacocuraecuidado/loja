@@ -1,364 +1,74 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espaço Cura & Cuidado | V4.0 Sincronizada</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        :root { --primaria: #a68a78; --secundaria: #ece5df; --destaque: #8ca68e; --texto: #5a5552; --fundo: #f9f7f2; --card: #ffffff; --sucesso: #25D366; --cripto-btc: #f7931a; --cripto-usdt: #26a17b; }
-        @media (prefers-color-scheme: dark) {
-            :root { --fundo: #1a1817; --card: #2a2725; --texto: #e2ddd9; --secundaria: #3d3834; }
-            header, .checkout-box, .produto-card, .login-box { background: var(--card) !important; color: var(--texto); }
-            input, textarea, select { background: #333; color: white; border: 1px solid #444; }
-        }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--fundo); color: var(--texto); transition: 0.3s; }
-        header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--secundaria); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-family: 'Playfair Display', serif; font-size: 2em; color: var(--primaria); cursor: pointer; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-        
-        /* TABS / CATEGORIAS */
-        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
-        .tab-btn { background: none; border: 1px solid var(--primaria); color: var(--primaria); padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.8em; transition: 0.3s; }
-        .tab-btn.active { background: var(--primaria); color: white; }
-
-        .vitrine { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .produto-card { background: #fff; border-radius: 20px; border: 1px solid var(--secundaria); overflow: hidden; transition: 0.3s; position: relative; }
-        .produto-card img { width: 100%; height: 250px; object-fit: cover; }
-        .produto-info { padding: 20px; text-align: center; }
-        .estoque-status { font-size: 0.75em; font-weight: bold; margin-bottom: 10px; color: var(--destaque); }
-        .esgotado { color: #d9534f; }
-
-        .secao { display: none; } .ativa { display: block; }
-        #notificacao { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--texto); color: white; padding: 12px 25px; border-radius: 50px; display: none; z-index: 6000; }
-        
-        /* ADMIN LISTS */
-        .admin-item { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--secundaria); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
-        .btn-excluir { background: #ffeded; color: #d9534f; border: 1px solid #ffcfcf; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
-
-        #modal-checkout, #modal-login { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .checkout-box, .login-box { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; text-align: center; }
-        .btn { border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-    </style>
+    <title>Espaço Cura e Cuidado</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div id="notificacao"></div>
-
-<header>
-    <div class="logo" onclick="mostrar('loja')">Espaço Cura & Cuidado</div>
-    <nav style="margin-top:10px;">
-        <span onclick="mostrar('loja')" style="cursor:pointer; margin: 0 10px; font-weight: 600; font-size: 0.8em;">LOJA</span>
-        <span onclick="mostrar('cadastro-cliente')" style="cursor:pointer; margin: 0 10px; font-weight: 600; font-size: 0.8em;">MEU CADASTRO</span>
-        <span onclick="mostrar('carrinho')" style="cursor:pointer; margin: 0 10px; font-weight: 600; font-size: 0.8em;">BOLSA (<span id="count">0</span>)</span>
-    </nav>
-</header>
-
-<div class="container">
+    <!-- Cabeçalho do site -->
+    <header>
+        <div class="logo">👩‍👧</div> <!-- Aqui você pode trocar por uma imagem -->
+        <nav class="menu">
+            <!-- Links de navegação -->
+            <a href="sobre.html">Sobre</a>
+            <a href="#produtos">Produtos</a>
+            <a href="#depoimentos">Depoimentos</a>
+            <a href="admin.html" id="linkAdmin">Admin</a>
+            
+        </nav>
+        <div class="acoes">
+    <span id="boasVindas" style="margin-right: 10px; font-weight: bold;"></span>
     
-    <div id="loja" class="secao ativa">
-        <div class="tabs">
-            <button class="tab-btn active" onclick="filtrarCat('Destaques', this)">Destaques</button>
-            <button class="tab-btn" onclick="filtrarCat('Para a mamãe', this)">Para a Mamãe</button>
-            <button class="tab-btn" onclick="filtrarCat('Para o bebê', this)">Para o Bebê</button>
-        </div>
-        <div class="vitrine" id="vitrine"></div>
-        <div id="lista-depoimentos" style="display:flex; overflow-x:auto; padding:40px 0;"></div>
-    </div>
-
-    <div id="cadastro-cliente" class="secao">
-        <div style="max-width:450px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--secundaria);">
-            <h3>Cadastro de Cliente</h3>
-            <input type="text" id="cli-nome" placeholder="Nome Completo" style="width:94%; margin-bottom:10px; padding:12px; border-radius:10px;">
-            <input type="email" id="cli-email" placeholder="E-mail" style="width:94%; margin-bottom:10px; padding:12px; border-radius:10px;">
-            <input type="text" id="cli-tel" placeholder="Telefone" style="width:94%; margin-bottom:10px; padding:12px; border-radius:10px;">
-            <textarea id="cli-end" placeholder="Endereço para entrega" style="width:94%; height:80px; margin-bottom:10px; padding:12px; border-radius:10px;"></textarea>
-            <button class="btn btn-pix" onclick="realizarCadastro()">SALVAR DADOS</button>
-        </div>
-    </div>
-
-    <div id="carrinho" class="secao">
-        <div style="max-width:450px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:1px solid var(--secundaria);">
-            <h3>Sua Bolsa</h3>
-            <div id="contador-reserva" style="background:#fff5f5; color:#d9534f; padding:10px; border-radius:10px; text-align:center; font-weight:bold; margin-bottom:15px; display:none;">
-                Expira em: <span id="timer-display">05:00</span>
-            </div>
-            <div id="lista-carrinho"></div>
-            <div id="total-carrinho" style="font-size:1.6em; color:var(--primaria); text-align:right; font-weight:bold; margin:20px 0;"></div>
-            <button class="btn btn-pix" onclick="abrirCheckout('PIX')">PAGAR COM PIX</button>
-            <button class="btn btn-btc" onclick="abrirCheckout('BTC')">PAGAR COM BTC</button>
-            <button class="btn btn-usdt" onclick="abrirCheckout('USDT')">PAGAR COM USDT</button>
-        </div>
-    </div>
-
-    <div id="admin" class="secao">
-        <div style="max-width:700px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px; border:2px solid var(--primaria);">
-            <h3>Painel Administrativo</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-                <input type="text" id="adm-nome" placeholder="Nome do Produto">
-                <input type="number" id="adm-preco" placeholder="Preço R$">
-                <input type="number" id="adm-estoque" placeholder="Qtd em Estoque">
-                <select id="adm-cat">
-                    <option value="Destaques">Destaques</option>
-                    <option value="Para a mamãe">Para a mamãe</option>
-                    <option value="Para o bebê">Para o bebê</option>
-                </select>
-                <input type="text" id="adm-foto" placeholder="Link da Foto" style="grid-column: span 2;">
-                <button class="btn btn-pix" onclick="salvarProduto()" style="grid-column: span 2;">SALVAR NOVO PRODUTO</button>
-            </div>
-            <hr>
-            <h4>Gestão de Estoque</h4>
-            <div id="lista-admin-produtos"></div>
-            <hr>
-            <h4>Gestão de Depoimentos</h4>
-            <textarea id="d-txt" placeholder="Texto do depoimento" style="width:94%; height:60px;"></textarea>
-            <input type="text" id="d-nome" placeholder="Nome do Cliente" style="width:94%; margin:5px 0;">
-            <button onclick="addDepoimento()" class="btn btn-btc">ADICIONAR DEPOIMENTO</button>
-            <div id="lista-admin-depoimentos" style="margin-top:15px;"></div>
-        </div>
-    </div>
-</div>
-
-<div id="modal-login"><div class="login-box"><h3>Admin</h3><input type="password" id="senha-admin" placeholder="Senha"><button class="btn btn-btc" onclick="verificarSenha()">ENTRAR</button></div></div>
-<div id="modal-checkout"><div class="checkout-box" id="checkout-conteudo"></div></div>
-
-<script>
-    const SEU_TEL = "5585991561497";
-    const URL_PRODUTOS = "https://script.google.com/macros/s/AKfycby-9ppDPcSmkuuxhdGzdWWnrAWJXdxiuv8RbZRmvNDYyTwlmD-c4gwrCQqwgV2ngnIF/exec";
-    const URL_DEPOIMENTOS = "https://script.google.com/macros/s/AKfycbywmLuyLLMqMsgj9Rm-_RcpVa7dadyUCNOQYVc-kt5hnnTw3znOkLfpEV_-0zjIwXA/exec";
-    const URL_CLIENTES = "https://script.google.com/macros/s/AKfycbwQzMt7purE5d0F3sRKfpWUly5JFTgMv9-NiuLEnhmALLdg1XWLu7nCX7SMty5w5KaYVw/exec";
-    const URL_VENDAS = "https://script.google.com/macros/s/AKfycby2_t6WzeLLikrsagMCzTS4lelKN5ZwNfbnYdWs2fMicufqM9L3XT8CjikNG5eg3Mc4wg/exec";
-
-    let db = { produtos: [], depoimentos: [], clientes: [], config: { pix:'', btc:'', usdt:'' } };
-    let cart = []; let prices = { btc: 600000, usdt: 5.20 };
-    let catFiltro = 'Destaques';
-    let tempoReserva; let minutos = 5; let segundos = 0;
-
-    async function carregarDadosSincronizados() {
-        notify("Sincronizando...");
-        try {
-            const [rp, rd] = await Promise.all([fetch(URL_PRODUTOS), fetch(URL_DEPOIMENTOS)]);
-            db.produtos = await rp.json();
-            db.depoimentos = await rd.json();
-            renderizar();
-            notify("Dados Atualizados!");
-        } catch (e) { notify("Erro ao carregar dados."); }
-    }
-
-    function filtrarCat(cat, btn) {
-        catFiltro = cat;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderizar();
-    }
-
-    function renderizar() {
-        // Vitrine
-        const pFiltrados = db.produtos.filter(p => p.categoria === catFiltro || (catFiltro==='Destaques' && (!p.categoria || p.categoria==='Destaques')));
-        document.getElementById('vitrine').innerHTML = pFiltrados.map(p => `
-            <div class="produto-card">
-                <img src="${p.foto}">
-                <div class="produto-info">
-                    <div class="estoque-status ${p.estoque <= 0 ? 'esgotado' : ''}">${p.estoque <= 0 ? 'ESGOTADO' : 'ESTOQUE: '+p.estoque}</div>
-                    <h3>${p.nome}</h3>
-                    <div class="preco-brl">R$ ${Number(p.preco).toFixed(2)}</div>
-                    <button class="btn" style="background:var(--primaria); color:white" onclick="addCart('${p.id}')" ${p.estoque <= 0 ? 'disabled' : ''}>RESERVAR</button>
-                </div>
-            </div>`).join('');
-
-        // Depoimentos
-        document.getElementById('lista-depoimentos').innerHTML = db.depoimentos.map(d => `
-            <div style="min-width:250px; background:white; padding:20px; border-radius:20px; margin-right:15px; border:1px solid var(--secundaria);">
-                <p>"${d.texto}"</p><strong>- ${d.nome}</strong>
-            </div>`).join('');
-
-        // Admin Produtos
-        document.getElementById('lista-admin-produtos').innerHTML = db.produtos.map(p => `
-            <div class="admin-item">
-                <span><b>${p.nome}</b> | Est: ${p.estoque} | Vend: ${p.vendidos || 0}</span>
-                <button class="btn-excluir" onclick="excluirItem('produto', '${p.id}')">Excluir</button>
-            </div>`).join('');
-
-        // Admin Depoimentos
-        document.getElementById('lista-admin-depoimentos').innerHTML = db.depoimentos.map(d => `
-            <div class="admin-item">
-                <span>"${d.texto.substring(0,20)}..." - ${d.nome}</span>
-                <button class="btn-excluir" onclick="excluirItem('depoimento', '${d.id}')">Excluir</button>
-            </div>`).join('');
-
-        // Bolsa
-        const total = cart.reduce((a, b) => a + Number(b.preco), 0);
-        document.getElementById('count').innerText = cart.length;
-        document.getElementById('total-carrinho').innerText = "Total: R$ " + total.toFixed(2);
-        document.getElementById('lista-carrinho').innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${i.nome}</span><b>R$ ${Number(i.preco).toFixed(2)}</b></div>`).join('');
-    }
-
-    async function salvarProduto() {
-        const dados = {
-            nome: document.getElementById('adm-nome').value,
-            preco: document.getElementById('adm-preco').value,
-            estoque: document.getElementById('adm-estoque').value,
-            categoria: document.getElementById('adm-cat').value,
-            foto: document.getElementById('adm-foto').value,
-            vendidos: 0
-        };
-        notify("Enviando...");
-        await fetch(URL_PRODUTOS, { method: 'POST', mode: 'no-cors', body: JSON.stringify(dados) });
-        setTimeout(carregarDadosSincronizados, 2000);
-    }
-
-    async function addDepoimento() {
-        const dados = {
-            nome: document.getElementById('d-nome').value,
-            texto: document.getElementById('d-txt').value,
-            data: new Date().toLocaleDateString()
-        };
-        await fetch(URL_DEPOIMENTOS, { method: 'POST', mode: 'no-cors', body: JSON.stringify(dados) });
-        setTimeout(carregarDadosSincronizados, 2000);
-    }
-
-    async function realizarCadastro() {
-        const dados = {
-            nome: document.getElementById('cli-nome').value,
-            email: document.getElementById('cli-email').value,
-            telefone: document.getElementById('cli-tel').value,
-            endereco: document.getElementById('cli-end').value,
-            data: new Date().toLocaleDateString()
-        };
-        notify("Salvando Cadastro...");
-        await fetch(URL_CLIENTES, { method: 'POST', mode: 'no-cors', body: JSON.stringify(dados) });
-        notify("Cadastro Concluído!");
-        mostrar('loja');
-    }
-
-    async function excluirItem(tipo, id) {
-        if(!confirm("Excluir permanentemente?")) return;
-        const url = tipo === 'produto' ? URL_PRODUTOS : URL_DEPOIMENTOS;
-        await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'DELETE', id: id }) });
-        setTimeout(carregarDadosSincronizados, 2000);
-    }
-
-    function addCart(id) {
-        const p = db.produtos.find(x => x.id == id);
-        if(p && p.estoque > 0) { cart.push(p); iniciarTimer(); renderizar(); notify("Adicionado!"); }
-    }
-
-    function iniciarTimer() {
-        clearInterval(tempoReserva); minutos = 5; segundos = 0;
-        document.getElementById('contador-reserva').style.display = 'block';
-        tempoReserva = setInterval(() => {
-            if (segundos === 0) { if (minutos === 0) { esvaziarBolsa(); return; } minutos--; segundos = 59; } 
-            else { segundos--; }
-            document.getElementById('timer-display').innerText = `${minutos.toString().padStart(2,'0')}:${segundos.toString().padStart(2,'0')}`;
-        }, 1000);
-    }
-
-    function esvaziarBolsa() { cart = []; renderizar(); document.getElementById('contador-reserva').style.display = 'none'; }
-
-    function abrirCheckout(tipo) {
-        if(cart.length === 0) return;
-        const total = cart.reduce((a, b) => a + Number(b.preco), 0);
-        const valorCripto = tipo === 'BTC' ? (total/prices.btc).toFixed(8) : (total/prices.usdt).toFixed(2);
-        const label = tipo === 'PIX' ? `R$ ${total.toFixed(2)}` : `${tipo} ${valorCripto}`;
-        
-        document.getElementById('checkout-conteudo').innerHTML = `
-            <div id="status-pagamento">
-                <h3>Pagamento ${tipo}</h3>
-                <h2 style="color:var(--primaria)">${label}</h2>
-                <p style="font-size:0.8em; color:#666; margin-bottom:15px;">Pague usando os dados acima. Depois, digite seu nome e clique para aguardar a liberação do comprovante.</p>
-                <input type="text" id="checkout-nome" placeholder="Seu Nome Completo" style="width:80%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;">
-                <button class="btn btn-pix" id="btn-finalizar" onclick="registrarVenda('${tipo}', '${label}')">CONFIRMAR PAGAMENTO</button>
-                <button class="btn" onclick="document.getElementById('modal-checkout').style.display='none'">CANCELAR</button>
-            </div>`;
-        document.getElementById('modal-checkout').style.display = 'flex';
-    }    
-    async function registrarVenda(tipo, valor) {
-        const nome = document.getElementById('checkout-nome').value;
-        if(!nome) return alert("Por favor, digite seu nome.");
-
-        const protocolo = "CURA-" + Math.floor(1000 + Math.random() * 9000);
-        const itensNomes = cart.map(i => i.nome).join(", ");
-        const idVenda = Date.now().toString(); // Usamos o timestamp como ID único
-
-        // Muda a interface para o modo de espera (com um efeito visual simples)
-        document.getElementById('status-pagamento').innerHTML = `
-            <div style="padding:20px;">
-                <div style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primaria); border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto 20px auto;"></div>
-                <h3>Verificando Pagamento...</h3>
-                <p>Aguarde nesta tela. Assim que o administrador confirmar o recebimento, seu comprovante será baixado automaticamente.</p>
-                <p style="font-size:0.7em; color:var(--primaria); font-weight:bold;">Protocolo: ${protocolo}</p>
-            </div>
-            <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
-        `;
-
-        // 1. Envia os dados para a planilha de Vendas como "pendente"
-        await fetch(URL_VENDAS, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({
-                id: idVenda,
-                nome: nome,
-                valor: valor,
-                itens: itensNomes,
-                protocolo: protocolo
-            })
-        });
-
-        // 2. Abre o WhatsApp para avisar você
-        window.open(`https://wa.me/${SEU_TEL}?text=Olá! Fiz o pagamento de ${valor}. Protocolo: ${protocolo}. Aguardo a liberação do comprovante.`, '_blank');
-
-        // 3. Começa a "viciar" a planilha a cada 5 segundos
-        monitorarStatus(idVenda, nome, valor, protocolo);
-    }
-
-    function monitorarStatus(id, nome, valor, protocolo) {
-        const check = setInterval(async () => {
-            try {
-                const res = await fetch(`${URL_VENDAS}?id=${id}`);
-                const data = await res.json();
-
-                if (data.status === "pago") {
-                    clearInterval(check); // Para de perguntar
-                    gerarPDFFinal(nome, valor, protocolo); // Libera o download
-                    
-                    document.getElementById('status-pagamento').innerHTML = `
-                        <h3 style="color:var(--sucesso)">✓ Pagamento Confirmado!</h3>
-                        <p>Seu comprovante foi baixado com sucesso.</p>
-                        <button class="btn btn-pix" onclick="location.reload()">VOLTAR À LOJA</button>
-                    `;
-                    esvaziarBolsa();
-                }
-            } catch (e) { console.log("Aguardando aprovação..."); }
-        }, 5000); 
-    }
-
-    function gerarPDFFinal(nome, valor, protocolo) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const data = new Date().toLocaleDateString();
-        
-        doc.setFontSize(18);
-        doc.text("COMPROVANTE DE PAGAMENTO", 20, 20);
-        doc.setFontSize(12);
-        doc.text(`Data: ${data}`, 20, 40);
-        doc.text(`Protocolo: ${protocolo}`, 20, 50);
-        doc.text(`Cliente: ${nome}`, 20, 60);
-        doc.text(`Valor Pago: ${valor}`, 20, 70);
-        doc.text("Status: CONFIRMADO", 20, 80);
-        doc.text("--------------------------------------------------", 20, 90);
-        doc.text("Espaço Cura & Cuidado - Agradecemos a confiança.", 20, 105);
-        
-        doc.save(`comprovante-${protocolo}.pdf`);
-    }
+    <button id="btnLogin" onclick="window.location.href='login.html'">Login</button>
+            <a href="#" id="link-sair" class="botao-sair">Sair da Conta</a>
     
+    <input type="text" placeholder="Pesquisar...">
 
-    function mostrar(id) { document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa')); document.getElementById(id).classList.add('ativa'); }
-    function notify(m) { const n = document.getElementById('notificacao'); n.innerText = m; n.style.display = 'block'; setTimeout(()=>n.style.display='none', 3000); }
-    window.addEventListener('keydown', (e) => { if(e.shiftKey && e.altKey && e.code === 'KeyA') document.getElementById('modal-login').style.display='flex'; });
-    function verificarSenha() { if(document.getElementById('senha-admin').value === "Mychell1904") { document.getElementById('modal-login').style.display='none'; mostrar('admin'); } }
+           
+            
+                             
+           
+        </div>
+    </header>
 
-    carregarDadosSincronizados();
-</script>
+    <!-- Seção principal (Hero Section) -->
+    <section class="hero">
+        <h1>Espaço Cura e Cuidado</h1>
+        <p>Lugar onde seu bebê tem tanto apoio quanto você, Mamãe</p>
+        <img src="img/mae-bebe.jpg" alt="Mãe e bebê sorrindo">
+        <button id="saibaMais">Saiba mais</button>
+        <div id="infoSaibaMais" class="hidden">
+            <p>Site criado para apoiar mamães e bebês com conforto e carinho.</p>
+            <button id="deixeMensagem">Deixe sua mensagem</button>
+            <!-- Formulário escondido que aparece ao clicar -->
+            <form id="formMensagem" class="hidden">
+                <input type="text" placeholder="Nome" required>
+                <input type="tel" placeholder="Telefone" required>
+                <input type="email" placeholder="E-mail" required>
+                <textarea placeholder="Digite aqui e logo retornaremos"></textarea>
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Seção de produtos -->
+    <section id="produtos">
+        <h2>Produtos em Estoque</h2>
+        <div id="listaProdutos"></div> <!-- Aqui o JS vai inserir os produtos -->
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>&copy; 2026 Espaço Cura e Cuidado</p>
+        <a href="#">Política de Privacidade</a> | <a href="#">Termos de Uso</a>
+    </footer>
+
+    <!-- Importando os scripts -->
+    <script src="dados.js"></script> <!-- Banco de dados -->
+    <script src="script.js"></script> <!-- Lógica da página inicial -->
+    
 </body>
 </html>
+

@@ -3,16 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Painel Admin - Espaço Cura e Cuidado</title>
+    <script>
+        // 1. Proteção Imediata por Senha
+        const senhaAdmin = prompt("Digite a senha de administrador para acessar o painel:");
+        if (senhaAdmin !== "1234") { 
+            alert("Senha incorreta! Você será redirecionado.");
+            window.location.href = "index.html";
+        }
+    </script>
+
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Estilos mantidos */
-        .admin-container { padding: 20px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        .admin-container { padding: 20px; max-width: 1000px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; margin-bottom: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background-color: #e8b4b8; color: white; }
         tr:nth-child(even) { background-color: #f9f9f9; }
-        .btn-excluir { background: #ff4d4d; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .btn-excluir:hover { background: #cc0000; }
+        .btn-excluir { background: #ff4d4d; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+        .btn-pagamento { background: #28a745; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        h2 { color: #e8b4b8; border-bottom: 2px solid #e8b4b8; padding-bottom: 10px; margin-top: 40px; }
     </style>
 </head>
 <body>
@@ -24,81 +33,125 @@
     </header>
 
     <section class="admin-container">
-        <h2>Gestão de Usuários (Planilha)</h2>
-        <p>Abaixo estão as pessoas cadastradas no banco de dados do Google Drive:</p>
-        
+        <h2>📦 Gestão de Vendas e Pedidos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Pedido</th>
+                    <th>Cliente</th>
+                    <th>Produto</th>
+                    <th>Valor</th>
+                    <th>Status Pagamento</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="corpoVendas">
+                <tr><td colspan="6">Carregando vendas...</td></tr>
+            </tbody>
+        </table>
+
+        <h2>👥 Usuários Cadastrados</h2>
         <table id="tabelaUsuarios">
             <thead>
                 <tr>
                     <th>Nome</th>
                     <th>Usuário</th>
                     <th>E-mail</th>
-                    <th>Senha</th> <th>Ações</th>
+                    <th>Senha</th> 
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody id="corpoTabela">
-                </tbody>
+                <tr><td colspan="5">Carregando usuários...</td></tr>
+            </tbody>
         </table>
     </section>
 
     <script>
-        // 1. BLOQUEIO DE SEGURANÇA
-        const tipo = localStorage.getItem('tipoUsuario');
-        if (tipo !== 'Admin') {
-            alert('Acesso negado! Esta área é restrita.');
-            window.location.href = 'index.html';
+        const urlPlanilha = 'https://script.google.com/macros/s/AKfycbzfe3ywnkLckUPx1O0cIdtYKk3AoRBCUpzuO-41nIPIozagLnVDgD7GCO8vF6kvgE7n/exec';
+
+        // FUNÇÃO PARA CARREGAR TUDO
+        function carregarDadosAdmin() {
+            carregarUsuarios();
+            carregarVendas();
         }
 
-        // 2. URL DO SCRIPT
-        const urlPlanilha = 'https://script.google.com/macros/s/AKfycbxSMRxcvmDaVsKUP_HQuZ1bJWxYNiVF9HXaAA0WwtywcCNNMMDpjQQeQvZTye3vaB6V/exec';
-
-        // 3. FUNÇÃO PARA BUSCAR DADOS
+        // Listar Usuários
         function carregarUsuarios() {
             const corpo = document.getElementById('corpoTabela');
-            corpo.innerHTML = '<tr><td colspan="5">Carregando dados da planilha...</td></tr>';
-
             fetch(`${urlPlanilha}?acao=listar`)
                 .then(res => res.json())
                 .then(dados => {
                     corpo.innerHTML = ''; 
-                    
                     dados.forEach(user => {
                         if(user.usuario.toLowerCase() !== 'admin') {
-                            const linha = `
+                            corpo.innerHTML += `
                                 <tr>
                                     <td>${user.nome}</td>
                                     <td>${user.usuario}</td>
                                     <td>${user.email}</td>
-                                    <td>${user.senha || '***'}</td> <td>
-                                        <button class="btn-excluir" onclick="excluirUsuario(${user.linha})">Excluir</button>
-                                    </td>
-                                </tr>
-                            `;
-                            corpo.innerHTML += linha;
+                                    <td>${user.senha || '***'}</td>
+                                    <td><button class="btn-excluir" onclick="excluirUsuario(${user.linha})">Excluir</button></td>
+                                </tr>`;
                         }
                     });
-                })
-                .catch(err => {
-                    corpo.innerHTML = '<tr><td colspan="5">Erro ao carregar dados. Verifique a nova implantação no Google Script.</td></tr>';
-                    console.error(err);
                 });
         }
 
-        // 4. FUNÇÃO PARA EXCLUIR
+        // Listar Vendas
+        function carregarVendas() {
+            const corpo = document.getElementById('corpoVendas');
+            // Usamos a mesma URL, mas o Script precisa retornar a aba "Vendas"
+            fetch(`${urlPlanilha}?acao=listarVendasGeral`) 
+                .then(res => res.json())
+                .then(vendas => {
+                    corpo.innerHTML = '';
+                    vendas.reverse().forEach(v => {
+                        const isPendente = v.statusPag === "Aguardando Pagamento";
+                        corpo.innerHTML += `
+                            <tr>
+                                <td>${v.id}</td>
+                                <td>${v.cliente}</td>
+                                <td>${v.produto}</td>
+                                <td>R$ ${v.valor}</td>
+                                <td style="color: ${isPendente ? 'orange' : 'green'}; font-weight: bold;">${v.statusPag}</td>
+                                <td>
+                                    ${isPendente ? `<button class="btn-pagamento" onclick="confirmarPagamento('${v.id}')">Dar Baixa ✅</button>` : 'Concluído'}
+                                </td>
+                            </tr>`;
+                    });
+                });
+        }
+
+        // Ação: Confirmar Pagamento
+        function confirmarPagamento(id) {
+            if (confirm("Confirmar recebimento do pagamento para o pedido " + id + "?")) {
+                fetch(urlPlanilha, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ acao: "atualizarPagamento", idPedido: id })
+                }).then(() => {
+                    alert("Pagamento confirmado!");
+                    carregarVendas();
+                });
+            }
+        }
+
+        // Ação: Excluir Usuário
         function excluirUsuario(numeroLinha) {
-            if (confirm("ATENÇÃO: Deseja apagar este usuário definitivamente da planilha?")) {
+            if (confirm("Deseja apagar este usuário?")) {
                 fetch(urlPlanilha, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify({ acao: "excluir", linha: numeroLinha })
                 }).then(() => {
-                    alert("Usuário removido da planilha!");
+                    alert("Removido!");
                     carregarUsuarios(); 
-                }).catch(err => alert("Erro ao excluir: " + err));
+                });
             }
         }
 
-        window.onload = carregarUsuarios;
+        window.onload = carregarDadosAdmin;
     </script>
 </body>
 </html>

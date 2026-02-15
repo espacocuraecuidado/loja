@@ -1,84 +1,96 @@
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <title>Login - Espaço Cura e Cuidado</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <section class="hero">
-            <h2>Acessar Conta</h2>
-            <form id="formLogin">
-                <input type="text" id="user" placeholder="Nome de usuário" required><br><br>
-                <input type="password" id="pass" placeholder="Senha de Acesso" required><br><br>
-                <button type="submit">Entrar</button>
-            </form>
-    
-            <p>Ainda não tem acesso? <a href="cadastro.html" style="color: #e8b4b8; font-weight: bold;">Abra sua conta</a></p>
-    
-            <div style="margin-top: 15px;">
-                <p>Ou continue como <a href="index.html" onclick="entrarComoVisitante()" style="color: #e8b4b8; font-weight: bold;">Visitante</a></p>
-            </div>
-        </section>
-    
-        <script src="usuarios.js"></script>
-        
-        <script>
-            // Função para o botão Visitante
-            function entrarComoVisitante() {
-                localStorage.removeItem('usuarioLogado'); 
-            }
-    
-            // Lógica do Formulário de Login
-            document.getElementById('formLogin').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const userIn = document.getElementById('user').value;
-                const passIn = document.getElementById('pass').value;
-                const btnTexto = e.target.querySelector('button');// implementando codido planilha
-                btnTexto.innerText = "Verificando..."; // Feedback visual
-                btnTexto.disabled = true;
-                // URL da sua planilha (a mesma que você usou no cadastro)
-                const urlPlanilha = 'https://script.google.com/macros/s/AKfycbx35BCNL4rVOi8CxDtBS5AmHZbmUv9xutT6cz8qcL3ZeRWGB2TuXv60PF5nMLhuktG7/exec';
-                
-                // 1. Pega os usuários novos que você cadastrou (como o Lúcio)
-                //const novosUsuarios = JSON.parse(localStorage.getItem('usuarios_db')) || [];
-    
-                // 1.1 Faz a busca na planilha via GET
-        fetch(`${urlPlanilha}?usuario=${userIn}&senha=${passIn}`)
-            .then(res => res.json())
-            .then(resposta => {
-                if (resposta.status === "sucesso") {
-                    // LOGIN SUCESSO PELA PLANILHA (Ex: Lúcio)
-                    localStorage.setItem('usuarioLogado', resposta.nome);
-                    localStorage.setItem('tipoUsuario', userIn.toLowerCase() === 'admin' ? 'Admin' : 'cliente');
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta name="theme-color" content="#e8b4b8">
+    <meta charset="UTF-8">
+    <title>Login - Espaço Cura e Cuidado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section class="hero">
+        <h2>Acessar Conta</h2>
+        <form id="formLogin">
+    <input type="text" id="user" placeholder="Nome de usuário" required><br><br>
+    <input type="password" id="pass" placeholder="Senha de Acesso" required><br><br>
+    <button type="submit" id="btnSubmit">Entrar</button>
+</form>
 
-                    alert('Login realizado com sucesso! Bem-vindo(a), ' + resposta.nome);
-                    window.location.href = 'index.html';
-                } else {
-                    // 2. Se não achou na planilha, tenta buscar no usuarios.js (Admin fixo)
-                    const usuarioFixo = db_usuarios.find(u => u.usuario === userIn && u.senha === passIn);
-if (usuarioFixo) {
-                        localStorage.setItem('usuarioLogado', usuarioFixo.nomeCompleto);
-                        localStorage.setItem('tipoUsuario', usuarioFixo.tipo || 'Admin');
-                        alert('Login Admin realizado!');
+<div style="margin-top: 15px; text-align: center;">
+    <a href="#" onclick="esqueciSenha()" style="font-size: 0.85rem; color: #888; text-decoration: none; display: block;">
+        Esqueci minha senha
+    </a>
+</div>
+
+        <p style="margin-top: 20px;">Ainda não tem acesso? <a href="cadastro.html" style="color: #e8b4b8; font-weight: bold;">Abra sua conta</a></p>
+        
+        <div style="margin-top: 15px;">
+            <p>Ou continue como <a href="index.html" onclick="entrarComoVisitante()" style="color: #e8b4b8; font-weight: bold;">Visitante</a></p>
+        </div>
+    </section>
+
+    <script src="usuarios.js"></script>
+    
+    <script>
+        const urlPlanilha = 'https://script.google.com/macros/s/AKfycbx35BCNL4rVOi8CxDtBS5AmHZbmUv9xutT6cz8qcL3ZeRWGB2TuXv60PF5nMLhuktG7/exec';
+
+        // 1. Função Esqueci Senha (WhatsApp)
+        function esqueciSenha() {
+            const usuario = prompt("Digite seu Nome de Usuário:");
+            if (usuario) {
+                const telAdmin = "5585991561497"; 
+                const mensagem = encodeURIComponent(`Olá! Esqueci minha senha do Espaço Cura e Cuidado. Meu usuário é: ${usuario}. Poderia resetar para mim?`);
+                alert("Para sua segurança, você será redirecionado para o WhatsApp do administrador.");
+                window.open(`https://wa.me/${telAdmin}?text=${mensagem}`, '_blank');
+            }
+        }
+
+        // 2. Função Visitante
+        function entrarComoVisitante() {
+            localStorage.removeItem('usuarioLogado');
+            localStorage.setItem('tipoUsuario', 'visitante');
+        }
+
+        // 3. Lógica do Formulário de Login
+        document.getElementById('formLogin').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const userIn = document.getElementById('user').value;
+            const passIn = document.getElementById('pass').value;
+            const btn = document.getElementById('btnSubmit');
+
+            btn.innerText = "Verificando...";
+            btn.disabled = true;
+
+            // Busca na Planilha
+            fetch(`${urlPlanilha}?usuario=${userIn}&senha=${passIn}`)
+                .then(res => res.json())
+                .then(resposta => {
+                    if (resposta.status === "sucesso") {
+                        localStorage.setItem('usuarioLogado', resposta.nome);
+                        localStorage.setItem('tipoUsuario', userIn.toLowerCase() === 'admin' ? 'Admin' : 'cliente');
+                        alert('Bem-vindo(a), ' + resposta.nome);
                         window.location.href = 'index.html';
                     } else {
-                        alert('Usuário ou senha incorretos.');
-                        btnTexto.innerText = "Entrar";
-                        btnTexto.disabled = false;
+                        // Tenta no banco fixo (usuarios.js)
+                        const usuarioFixo = db_usuarios.find(u => u.usuario === userIn && u.senha === passIn);
+                        if (usuarioFixo) {
+                            localStorage.setItem('usuarioLogado', usuarioFixo.nomeCompleto);
+                            localStorage.setItem('tipoUsuario', usuarioFixo.tipo || 'Admin');
+                            alert('Login Admin realizado!');
+                            window.location.href = 'index.html';
+                        } else {
+                            alert('Usuário ou senha incorretos.');
+                            btn.innerText = "Entrar";
+                            btn.disabled = false;
+                        }
                     }
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Erro na conexão com o servidor.');
-                btnTexto.innerText = "Entrar";
-                btnTexto.disabled = false;
-            });
-                    
-                    localStorage.setItem('tipoUsuario', tipo);
-    
-              });
-        </script>
-    </body>
-    </html>
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Erro na conexão. Verifique sua internet.');
+                    btn.innerText = "Entrar";
+                    btn.disabled = false;
+                });
+        });
+    </script>
+</body>
+</html>

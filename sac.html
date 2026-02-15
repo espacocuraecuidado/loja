@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>SAC - Ajuda - Espaço Cura e Cuidado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="padding: 20px; text-align: center; font-family: sans-serif;">
+    <header style="margin-bottom: 30px;">
+        <a href="index.html" style="text-decoration: none; color: #e8b4b8; font-weight: bold;">← Voltar para a Loja</a>
+        <!-- Link para voltar à página inicial -->
+        <a href="index.html">← Voltar</a>
+    </header>
+    </header>
+
+    <h2>Central de Ajuda (SAC)</h2>
+    <p>Para confirmar seu pagamento ou tirar dúvidas, siga os passos abaixo:</p>
+    
+    <div style="background: #f9f9f9; padding: 30px; border-radius: 15px; display: inline-block; text-align: left; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <p><strong>1. Prepare o comprovante de pagamento.</strong></p>
+        <p><strong>2. Clique no botão abaixo.</strong></p>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
+            Ao clicar, avisaremos o administrador sobre seu contato e você poderá enviar o comprovante.
+        </p>
+        
+        <button onclick="enviarMensagemSac()" 
+           style="background: #25d366; color: white; padding: 15px; text-decoration: none; border-radius: 8px; display: block; text-align: center; font-weight: bold; width: 100%; border: none; cursor: pointer; font-size: 1rem;">
+           📲 Chamar no WhatsApp
+        </button>
+    </div>
+
+    <script>
+        function enviarMensagemSac() {
+            // 1. Defina aqui o seu número de WhatsApp (Admin)
+            const telAdmin = "5585991561497"; 
+            
+            // 2. Recupera o usuário logado
+            const usuario = localStorage.getItem('usuarioLogado') || "Visitante";
+            
+            // 3. Alerta para o cliente no site
+            alert("Obrigada pelo contato! Entraremos em contato em breve. Estamos abrindo o WhatsApp para você enviar o comprovante.");
+
+            // 4. Prepara a mensagem para o Admin
+            // Ex: "O usuário (paulo) está tentando contato com o administrador relativo a uma compra."
+            const texto = encodeURIComponent(`Olá! O usuário (${usuario}) está tentando contato com o administrador relativo a uma compra/ajuda.`);
+            
+            // 5. Abre o link do WhatsApp
+            window.open(`https://wa.me/${telAdmin}?text=${texto}`, '_blank');
+        }
+    </script>
+</body>
+</html>

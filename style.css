@@ -4,6 +4,7 @@ body {
     margin: 0;
     background-color: #fdf6f6; /* Rosa seco suave */
     color: #333;
+    overflow-x: hidden; /* Evita que a página balance para os lados no celular */
 }
 
 /* Cabeçalho */
@@ -13,75 +14,117 @@ header {
     align-items: center;
     background-color: #e8b4b8; /* Rosa seco */
     padding: 10px 20px;
+    flex-wrap: wrap; /* Permite quebrar linha no celular */
 }
 
 header .logo {
     font-size: 2rem;
 }
 
+header .menu {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 header .menu a {
-    margin: 0 10px;
     text-decoration: none;
     color: #fff;
+    font-weight: bold;
 }
 
 header .acoes {
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
 /* Seção principal */
 .hero {
     text-align: center;
-    padding: 40px;
-    background-color: #fdf6f6; /* Rosa seco suave */
+    padding: 40px 20px;
 }
 
 .hero img {
-    max-width: 300px;
+    max-width: 100%; /* Ajusta ao tamanho da tela */
+    height: auto;
+    border-radius: 15px;
     margin: 20px auto;
-    display: block;
 }
 
-/* Seções */
+/* Seções e Formulários */
 section {
-    padding: 40px;
+    padding: 40px 20px;
 }
 
-#produtos {
-    background-color: #f3d6d8; /* Rosa claro */
+form {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
-footer {
-    text-align: center;
-    padding: 20px;
-    background-color: #e8b4b8;
-    color: #fff;
-}
-
-/* Classe para esconder elementos */
-.hidden {
-    display: none;
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box; /* Garante que o padding não aumente a largura */
 }
 
 /* Estilo dos produtos */
+#listaProdutos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
 #listaProdutos div {
-    display: inline-block;
-    margin: 10px;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    width: 250px;
     text-align: center;
 }
 
-/* Efeito suave nos botões e links */
-nav a, button {
-    transition: all 0.3s ease;
+/* Tabelas (Admin e Carrinho) */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Permite rolar a tabela no celular */
 }
 
-nav a:hover {
-    color: #e8b4b8; /* Cor que já usa no Admin */
-    transform: translateY(-2px);
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
 }
 
-/* Deixar o botão Sair elegante */
+th, td {
+    padding: 12px;
+    border: 1px solid #eee;
+    text-align: left;
+}
+
+/* Botões */
+button {
+    background-color: #e8b4b8;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+button:hover {
+    filter: brightness(0.9);
+    transform: scale(1.02);
+}
+
 .botao-sair {
     background: none;
     border: 1px solid #ff4d4d;
@@ -91,7 +134,42 @@ nav a:hover {
     font-size: 14px;
 }
 
-.botao-sair:hover {
-    background: #ff4d4d;
-    color: white !important;
+/* --- MEDIA QUERY: AJUSTES PARA CELULAR --- */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column; /* Empilha logo, menu e botões */
+        text-align: center;
+        gap: 15px;
+    }
+
+    .menu {
+        order: 2; /* Move o menu para o meio */
+    }
+
+    .acoes {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+
+    section {
+        padding: 20px 10px;
+    }
+
+    #listaProdutos div {
+        width: 100%; /* Produtos ocupam a largura toda no celular */
+    }
 }
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #e8b4b8;
+    color: #fff;
+}
+
+.hidden { display: none; }

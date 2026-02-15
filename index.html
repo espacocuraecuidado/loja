@@ -14,7 +14,7 @@
             <!-- Links de navegação -->
             <a href="sobre.html">Sobre</a>
             <a href="#produtos">Produtos</a>
-            <a href="#depoimentos">Depoimentos</a>
+            <a href="depoimentos.html">Depoimentos</a>
             <a href="admin.html" id="linkAdmin">Admin</a>
             
         </nav>
@@ -58,11 +58,37 @@
         <h2>Produtos em Estoque</h2>
         <div id="listaProdutos"></div> <!-- Aqui o JS vai inserir os produtos -->
     </section>
-
+<section id="agendamento" style="background-color: #fdf6f6; padding: 40px; border-radius: 10px; margin: 20px;">
+    <h2 style="text-align: center; color: #e8b4b8;">Solicitar Agendamento (Cidades do Ceara e Mossoró-RN)</h2>
+    <p style="text-align: center;">Preencha os dados abaixo e entraremos em contato para confirmar.</p>
+    
+    <form id="formAgendamento" style="max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px;">
+        <input type="text" id="nomeMae" placeholder="Seu Nome Completo" required style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        <input type="tel" id="whatsapp" placeholder="Seu WhatsApp (com DDD)" required style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        
+        <label for="dataDesejada">Data de Preferência:</label>
+        <input type="date" id="dataDesejada" required style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        
+        <select id="servico" required style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <option value="">Selecione o Serviço</option>
+            <option value="Consultoria Amamentação">Consultoria Amamentação</option>
+            <option value="Cuidado Pós-Parto">Cuidado Pós-Parto</option>
+            <option value="Massagem Relaxante">Laser Terapia</option>
+            <option value="Massagem Relaxante">Cuidado durante o Parto</option>
+            <option value="Massagem Relaxante">DOULA</option>
+        </select>
+        <div style="text-align: center; margin: 20px;">
+    <a href="depoimentos.html" style="background-color: #e8b4b8; color: white; padding: 10px 25px; border-radius: 50px; text-decoration: none; font-weight: bold;">
+        💕 Ver Depoimentos das Mamães
+    </a>
+</div>
+        <button type="submit" style="background-color: #e8b4b8; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold;">Enviar Solicitação</button>
+    </form>
+</section>
     <!-- Rodapé -->
     <footer>
         <p>&copy; 2026 Espaço Cura e Cuidado</p>
-        <a href="#">Política de Privacidade</a> | <a href="#">Termos de Uso</a>
+        <a href="#">Política de Privacidade</a> | <a href="#">Termos de Uso</a> | <a href="sac.html" style="color: #h2d4d2; font-weight: bold;">Preciso de Ajuda</a>
     </footer>
 
     <!-- Importando os scripts -->

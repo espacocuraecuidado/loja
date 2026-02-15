@@ -2,7 +2,64 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, i<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta name="theme-color" content="#e8b4b8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depoimentos - Espaço Cura e Cuidado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" style="text-decoration: none; color: #e8b4b8; font-weight: bold;">← Voltar para a Loja</a>
+        <h1 style="color: #e8b4b8; text-align: center;">O que as Mamães dizem...</h1>
+        <!-- Link para voltar à página inicial -->
+        <a href="index.html">← Voltar</a>
+    </header>
+    </header>
+
+    <main id="containerDepoimentos" style="padding: 20px; max-width: 800px; margin: 0 auto;">
+        <p style="text-align: center;">Carregando mensagens de carinho...</p>
+    </main>
+
+    <script>
+        const urlPlanilha = 'https://script.google.com/macros/s/AKfycbx35BCNL4rVOi8CxDtBS5AmHZbmUv9xutT6cz8qcL3ZeRWGB2TuXv60PF5nMLhuktG7/exec';
+
+        async function carregarDepoimentos() {
+            const container = document.getElementById('containerDepoimentos');
+            try {
+                const resposta = await fetch(urlPlanilha + "?acao=listarDepoimentos");
+                const depoimentos = await resposta.json();
+
+                container.innerHTML = ""; // Limpa o carregando
+
+                if (depoimentos.length === 0) {
+                    container.innerHTML = "<p>Ainda não temos depoimentos, mas logo teremos muitas histórias de carinho aqui!</p>";
+                    return;
+                }
+
+                depoimentos.forEach(dep => {
+                    container.innerHTML += `
+                        <div style="background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); border-left: 5px solid #e8b4b8;">
+                            <p style="font-style: italic; color: #555; line-height: 1.6;">"${dep.comentario}"</p>
+                            <div style="margin-top: 10px; text-align: right;">
+                                <strong style="color: #e8b4b8;">— ${dep.nome}</strong><br>
+                                <small style="color: #aaa;">${dep.data}</small>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (erro) {
+                container.innerHTML = "<p>Erro ao carregar depoimentos. Por favor, tente mais tarde.</p>";
+            }
+        }
+
+        carregarDepoimentos();
+    </script>
+</body>
+</html>nitial-scale=1.0">
     <title>Depoimentos - Espaço Cura e Cuidado</title>
     <link rel="stylesheet" href="style.css">
 </head>

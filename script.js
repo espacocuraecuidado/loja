@@ -126,8 +126,8 @@ function finalizarCompra(nomeProduto, precoProduto) {
 document.addEventListener('DOMContentLoaded', function() {
     carregarProdutos(); // Chama a função de carga
 
-    const nomeUsuario = localStorage.getItem('usuarioLogado');
-    const tipoUsuario = localStorage.getItem('tipoUsuario');
+    const nomeUsuario = sessiontorage.getItem('usuarioLogado');
+    const tipoUsuario = sessionStorage.getItem('tipoUsuario');
     const spanBoasVindas = document.getElementById('boasVindas');
     const btnLogin = document.getElementById('btnLogin');
     const btnSair = document.getElementById('link-sair');

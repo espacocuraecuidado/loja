@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Carrinho - Espaço Cura e Cuidado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="index.html">← Voltar à Loja</a>
+        <h1>Meu Carrinho e Pedidos</h1>
+    </header>
+
+    <main style="padding: 20px; max-width: 800px; margin: 0 auto;">
+        <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <p><strong>⚠️ Atenção:</strong> Caso o pagamento não seja debitado dentro de **12h**, o pedido será excluído automaticamente da lista.</p>
+        </div>
+
+        <section id="pedidosAtuais">
+            <h3>Histórico de Pedidos</h3>
+            <div id="listaPedidos">Carregando seus pedidos...</div>
+        </section>
+    </main>
+
+    <script>
+        const urlPlanilha = 'https://script.google.com/macros/s/AKfycbx35BCNL4rVOi8CxDtBS5AmHZbmUv9xutT6cz8qcL3ZeRWGB2TuXv60PF5nMLhuktG7/exec';
+        const usuarioLogado = localStorage.getItem('usuarioLogado');
+
+        async function carregarMeusPedidos() {
+            if (!usuarioLogado) {
+                document.getElementById('listaPedidos').innerHTML = "<p><a href='login.html'>Faça login</a> para ver seus pedidos.</p>";
+                return;
+            }
+
+            try {
+                const res = await fetch(urlPlanilha + "?acao=meusPedidos&usuario=" + usuarioLogado);
+                const pedidos = await res.json();
+                const container = document.getElementById('listaPedidos');
+                container.innerHTML = "";
+
+                if (pedidos.length === 0) {
+                    container.innerHTML = "<p>Você ainda não realizou pedidos.</p>";
+                    return;
+                }
+
+                pedidos.reverse().forEach(p => {
+                    const corStatus = p.statusPag === "Pagamento realizado" ? "green" : "orange";
+                    container.innerHTML += `
+                        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 10px; background: white;">
+                            <p><strong>Pedido:</strong> ${p.id} - <small>${p.data}</small></p>
+                            <p><strong>Produto:</strong> ${p.produto}</p>
+                            <p><strong>Valor:</strong> R$ ${p.valor.toFixed(2)}</p>
+                            <p><strong>Pagamento:</strong> <span style="color: ${corStatus}">${p.statusPag}</span></p>
+                            <p><strong>Envio:</strong> ${p.statusEnvio}</p>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        carregarMeusPedidos();
+    </script>
+</body>
+</html>

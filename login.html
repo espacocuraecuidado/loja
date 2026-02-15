@@ -46,8 +46,8 @@
 
         // 2. Função Visitante
         function entrarComoVisitante() {
-            localStorage.removeItem('usuarioLogado');
-            localStorage.setItem('tipoUsuario', 'visitante');
+            sessionStorage.removeItem('usuarioLogado');
+            sessionStorage.setItem('tipoUsuario', 'visitante');
         }
 
         // 3. Lógica do Formulário de Login

@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <meta name="theme-color" content="#e8b4b8">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Carrinho - Espaço Cura e Cuidado</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -44,14 +46,22 @@
                 }
 
                 pedidos.reverse().forEach(p => {
-                    const corStatus = p.statusPag === "Pagamento realizado" ? "green" : "orange";
+                    const pendente = p.statusPag !== "Pagamento realizado";
+                    const corStatus = pendente ? "orange" : "green";
+                    
                     container.innerHTML += `
-                        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 10px; background: white;">
+                        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 10px; background: white; position: relative;">
                             <p><strong>Pedido:</strong> ${p.id} - <small>${p.data}</small></p>
                             <p><strong>Produto:</strong> ${p.produto}</p>
                             <p><strong>Valor:</strong> R$ ${p.valor.toFixed(2)}</p>
                             <p><strong>Pagamento:</strong> <span style="color: ${corStatus}">${p.statusPag}</span></p>
                             <p><strong>Envio:</strong> ${p.statusEnvio}</p>
+                            
+                            ${pendente ? `
+                                <button onclick="cancelarPedido('${p.id}')" style="background-color: #ff4d4d; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-weight: bold; width: 100%;">
+                                    ❌ Cancelar Pedido
+                                </button>
+                            ` : ''}
                         </div>
                     `;
                 });
@@ -59,6 +69,25 @@
                 console.error(e);
             }
         }
+
+        async function cancelarPedido(id) {
+            if (confirm("Deseja realmente cancelar o pedido " + id + "?")) {
+                try {
+                    // Chamada para o Google Apps Script para remover a linha
+                    await fetch(urlPlanilha, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify({ acao: "cancelarPedido", idPedido: id })
+                    });
+                    
+                    alert("Pedido solicitado para cancelamento!");
+                    carregarMeusPedidos(); // Recarrega a lista
+                } catch (err) {
+                    alert("Erro ao cancelar: " + err);
+                }
+            }
+        }
+
         carregarMeusPedidos();
     </script>
 </body>

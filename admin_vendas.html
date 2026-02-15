@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - Vendas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="padding: 20px; background-color: #f4f4f4;">
+    <h2>📦 Gestão de Vendas</h2>
+    <div id="listaVendasAdmin" style="display: flex; flex-direction: column; gap: 15px;">
+        Carregando vendas...
+    </div>
+
+    <script>
+        const urlPlanilha = 'SUA_URL_DO_SCRIPT_AQUI';
+
+        async function carregarVendas() {
+            const res = await fetch(urlPlanilha + "?acao=listarVendasGeral"); // Você pode usar a mesma lógica de listar pedidos, mas sem filtro de usuário
+            const vendas = await res.json();
+            const container = document.getElementById('listaVendasAdmin');
+            container.innerHTML = "";
+
+            vendas.reverse().forEach(v => {
+                const pendente = v.statusPag === "Aguardando Pagamento";
+                container.innerHTML += `
+                    <div style="background: white; padding: 15px; border-radius: 8px; border-left: 5px solid ${pendente ? 'orange' : 'green'};">
+                        <p><strong>Pedido:</strong> ${v.id} | <strong>Cliente:</strong> ${v.cliente}</p>
+                        <p><strong>Item:</strong> ${v.produto} - R$ ${v.valor}</p>
+                        <p><strong>Status:</strong> ${v.statusPag}</p>
+                        ${pendente ? `<button onclick="confirmarPagamento('${v.id}')" style="background: green; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Confirmar Recebimento ✅</button>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        async function confirmarPagamento(id) {
+            if(confirm("Confirmar que o dinheiro caiu na conta para o pedido " + id + "?")) {
+                await fetch(urlPlanilha, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ acao: "atualizarPagamento", idPedido: id })
+                });
+                alert("Status atualizado! A mamãe já pode ver o status novo no carrinho dela.");
+                carregarVendas();
+            }
+        }
+        carregarVendas();
+    </script>
+</body>
+</html>

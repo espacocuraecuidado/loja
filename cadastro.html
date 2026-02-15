@@ -8,62 +8,100 @@
 <body>
     <section class="hero">
         <h2>Criar Nova Conta</h2>
-        <form id="formCadastro" style="display: flex; flex-direction: column; max-width: 300px; margin: 0 auto; gap: 10px;">
-            <input type="text" placeholder="Nome Completo" required>
-            <input type="text" placeholder="Nome de Usuário" required>
-            <input type="email" placeholder="E-mail" required>
-            <input type="password" placeholder="Senha de Acesso" required>
-            <hr w-100>
-            <input type="text" placeholder="Informe sua rua ou avenida">
-            <input type="text" placeholder="N° da sua casa">
-            <input type="text" placeholder="Bairro">
-            <input type="text" placeholder="Cidade">
-            <input type="text" placeholder="Estado">
-            <input type="number" placeholder="CEP (6 dígitos)" oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);">
+        <form id="formCadastro" style="display: flex; flex-direction: column; max-width: 320px; margin: 0 auto; gap: 10px;">
             
-            <button type="submit">Finalizar Cadastro</button>
+            <input type="text" id="nome" placeholder="Nome Completo" required>
+            
+            <input type="text" id="usuario" placeholder="Nome de Usuário" oninput="this.value = this.value.toLowerCase()" required>
+            
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="emailUser" placeholder="E-mail (ex: ana)" required style="flex: 1;">
+                <select id="dominioEmail" style="border-radius: 5px; border: 1px solid #ddd; background: #fff;">
+                    <option value="@gmail.com">@gmail.com</option>
+                    <option value="@hotmail.com">@hotmail.com</option>
+                    <option value="@outlook.com">@outlook.com</option>
+                </select>
+            </div>
+
+            <input type="password" id="senha" placeholder="Senha de Acesso (mín. 6 dígitos)" required>
+            <small id="senhaAviso" style="color: #888; font-size: 0.8rem; margin-top: -5px;">A senha deve ter pelo menos 6 caracteres.</small>
+            
+            <hr style="width: 100%; border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+            
+            <input type="text" id="rua" placeholder="Rua ou Avenida">
+            <input type="text" id="numero" placeholder="N° da casa">
+            <input type="text" id="bairro" placeholder="Bairro">
+            <input type="text" id="cidade" placeholder="Cidade">
+            <input type="text" id="estado" placeholder="Estado">
+            
+            <input type="text" id="cep" maxlength="10" placeholder="CEP: 00.000-000" oninput="formatarCEP(this)" required>
+            
+            <button type="submit" style="background-color: #e8b4b8; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                Finalizar Cadastro
+            </button>
         </form>
+
         <p><a href="login.html">Já tenho conta (Voltar ao login)</a></p>
         <div style="margin-top: 15px;">
-    <p>Ou continue como <a href="index.html" onclick="entrarComoVisitante()" style="color: #e8b4b8; font-weight: bold;">Visitante</a></p>
-</div>
-
-<script>
-function entrarComoVisitante() {
-    localStorage.removeItem('usuarioLogado'); // Garante que não há sobra de logins antigos
-}
-</script>
+            <p>Ou continue como <a href="index.html" onclick="entrarComoVisitante()" style="color: #e8b4b8; font-weight: bold;">Visitante</a></p>
+        </div>
     </section>
 
     <script>
+        // 1. Máscara para o CEP
+        function formatarCEP(campo) {
+            let v = campo.value.replace(/\D/g, ""); 
+            v = v.replace(/^(\d{2})(\d)/, "$1.$2"); 
+            v = v.replace(/(\d{3})(\d)/, "$1-$2");  
+            campo.value = v;
+        }
+
+        function entrarComoVisitante() {
+            localStorage.removeItem('usuarioLogado');
+        }
+
+        // 2. Lógica de Envio e Validação
         document.getElementById('formCadastro').addEventListener('submit', function(e) {
-    e.preventDefault();
+            e.preventDefault();
 
-    // Criando o objeto com todos os campos que a planilha espera
-    const dadosParaEnviar = {
-        nome: document.querySelector('input[placeholder="Nome Completo"]').value,
-        usuario: document.querySelector('input[placeholder="Nome de Usuário"]').value,
-        email: document.querySelector('input[placeholder="E-mail"]').value,
-        senha: document.querySelector('input[placeholder="Senha de Acesso"]').value,
-        rua: document.querySelector('input[placeholder="Informe sua rua ou avenida"]').value,
-        numero: document.querySelector('input[placeholder="N° da sua casa"]').value,
-        bairro: document.querySelector('input[placeholder="Bairro"]').value,
-        cidade: document.querySelector('input[placeholder="Cidade"]').value,
-        estado: document.querySelector('input[placeholder="Estado"]').value,
-        cep: document.querySelector('input[placeholder="CEP (6 dígitos)"]').value
-    };
+            const senha = document.getElementById('senha').value;
 
-    // Enviando para a URL do seu Google Script
-    fetch('https://script.google.com/macros/s/AKfycbxSMRxcvmDaVsKUP_HQuZ1bJWxYNiVF9HXaAA0WwtywcCNNMMDpjQQeQvZTye3vaB6V/exec', {
-        method: 'POST',
-        body: JSON.stringify(dadosParaEnviar)
-    })
-    .then(res => {
-        alert('Cadastro salvo com sucesso na sua planilha do Drive!');
-        window.location.href = 'login.html';
-    })
-    .catch(err => alert('Erro ao salvar: ' + err));
-});
+            // Validação de Senha
+            if (senha.length < 6) {
+                alert("🔒 A senha precisa ter pelo menos 6 caracteres para sua segurança.");
+                document.getElementById('senha').style.borderColor = "red";
+                document.getElementById('senha').focus();
+                return; 
+            }
+
+            document.getElementById('senha').style.borderColor = "#ddd";
+            const emailFinal = document.getElementById('emailUser').value.trim() + document.getElementById('dominioEmail').value;
+
+            const dadosParaEnviar = {
+                acao: "cadastro",
+                nome: document.getElementById('nome').value,
+                usuario: document.getElementById('usuario').value.toLowerCase().trim(),
+                email: emailFinal,
+                senha: senha,
+                rua: document.getElementById('rua').value,
+                numero: document.getElementById('numero').value,
+                bairro: document.getElementById('bairro').value,
+                cidade: document.getElementById('cidade').value,
+                estado: document.getElementById('estado').value,
+                cep: document.getElementById('cep').value
+            };
+
+            fetch('https://script.google.com/macros/s/AKfycbx35BCNL4rVOi8CxDtBS5AmHZbmUv9xutT6cz8qcL3ZeRWGB2TuXv60PF5nMLhuktG7/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(dadosParaEnviar)
+            })
+            .then(() => {
+                alert('Tudo pronto! Seu cadastro foi realizado com sucesso. 🌸');
+                window.location.href = 'login.html';
+            })
+            .catch(err => alert('Erro ao salvar: ' + err));
+        });
     </script>
 </body>
 </html>

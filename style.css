@@ -71,3 +71,27 @@ footer {
     text-align: center;
 }
 
+/* Efeito suave nos botões e links */
+nav a, button {
+    transition: all 0.3s ease;
+}
+
+nav a:hover {
+    color: #e8b4b8; /* Cor que já usa no Admin */
+    transform: translateY(-2px);
+}
+
+/* Deixar o botão Sair elegante */
+.botao-sair {
+    background: none;
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d !important;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.botao-sair:hover {
+    background: #ff4d4d;
+    color: white !important;
+}
